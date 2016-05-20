@@ -1,0 +1,299 @@
+#+TITLE:  Emacs Configuration File
+#+AUTHOR: Markus Sievers
+#+EMAIL:  markussievers88@gmail.com
+#+DATE:   2016-05-19
+#+TAGS:   emacs
+
+* Introduction
+
+  This is my =.emacs= file ... well, I took Howard Abrams emacs.org as
+  an example and created this top-level init-file. Through Howard I
+  was introduced to [[http://www.literateprogramming.com/][literate_programming]] using Emacs' [[http://www.orgmode.org][orgmode]]. I will
+  try to provide the links as best as I can to show from where I stole
+  my notes.
+
+** Emacs Executable
+
+** Loading this File
+
+   To "load" the contents of this file, add the following to
+   =$HOME/.emacs=:
+
+   #+BEGIN_SRC elisp :tangle no
+     ;; Load our Literate Programming version of our Dot Emacs
+     ;; file, from ~/Path_to/Dot-Files/emacs.org
+     (load-file "~/.emacs.d/elisp/init-main.el")
+
+     (server-start)   
+   #+END_SRC
+
+   Because at work we have to tunnel through the proxy and want it to
+   automatically check where I am using Emacs the following
+   lines need to be added to our =$HOME/.emacs= as well:
+
+   #+BEGIN_SRC elisp :tangle no
+     ;; Make sure that we can get through the proxy at work, 
+     ;; but only at work
+     (if (string= user-login-name '<log-in-name>)
+         (setq url-proxy-services
+              '(("http" . "127.0.0.1:3128")
+                ("https" . "127.0.0.1:3128")))
+      'false)
+   #+END_SRC
+
+* General Settings
+** My Directory Location
+
+   Normally, the =user-emacs-directory= stores everything in a
+   =.emacs.d= directory in the home directory, however, some Emacs
+   flavors (e.g. Aquamacs) overrides that, and since I now feel the
+   need to use these settings for both editors (sure feels like XEmacs
+   all over again).
+
+   Any way, I have a new global variable for that:
+
+   #+BEGIN_SRC elisp
+     (defconst ms/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+
+     (defun ms/emacs-subdirectory (d) (expand-file-name d ms/emacs-directory)) 
+   #+END_SRC
+
+** Directory Structure
+
+   In case this is the first time running this on a computer, we need
+   to make sure the following directories have been created.
+
+   #+BEGIN_SRC elisp
+     (let* ((subdirs '("elisp" "backups" "snippets" "ac-dict"))
+            (fulldirs (mapcar (lambda (d) (ms/emacs-subdirectory d)) subdirs)))
+       (dolist (dir fulldirs)
+         (when (not (file-exists-p dir))
+           (message "Make directory: %s" dir)
+           (make-directory dir))))
+   #+END_SRC
+
+** Customization Section
+   
+   While I would rather program my configurations, sometimes the Emacs
+   menu system is "good enough", but I want it in its own file:
+
+   #+BEGIN_SRC elisp
+     (setq custom-file (expand-file-name "custom.el" ms/emacs-directory))
+     (when (file-exists-p custom-file)
+       (load custom-file))
+   #+END_SRC
+
+** Setting up the Load Path
+
+   Extra packages not available via the package manager go in my
+   personal stash at: =$HOME/.emacs.d/elisp=
+
+   #+BEGIN_SRC elisp
+     (add-to-list 'load-path (ms/emacs-subdirectory "elisp"))
+   #+END_SRC
+
+   Load up my special collection of enhancements to Emacs Lisp:
+
+   #+BEGIN_SRC 
+     ;; Add the require statements for the personalized .el files
+     (require 'cl)
+   #+END_SRC
+* Package Initialization
+** Package Manager
+   
+   Emacs has become like every other operating system, and now has a
+   [[http://tromey.com/elpa/][package manager]] with its own collection repository, but since it is
+   so conservative, we need to add more repositories to get all the
+   sweet goodness, I demand.
+
+   #+BEGIN_SRC elisp
+     (require 'package)
+
+     (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
+                              ("gnu"       . "http://elpa.gnu.org/packages/")
+                              ("melpa"     . "http://melpa.milkbox.net/packages/")
+                              ("marmalade" . "http://marmalade-repo.org/packages/")))
+
+     (package-initialize)
+   #+END_SRC
+
+   The package management system doesn't come with a
+   programmatic way to specify what packages /should/ be
+   installed. Here is my solution until I convert to [[Use-Package][use-package]].
+
+   #+BEGIN_SRC elisp
+     (defun packages-install (packages)
+       "Given a list of packages, this will install them from the standard locations."
+       (let ((to-install (inverse-filter 'package-installed-p packages)))
+         (when to-install
+           (package-refresh-contents)
+           (dolist (it to-install)
+               (package-install it)
+           (delete-other-windows)))))
+   #+END_SRC
+
+** Use-Package
+
+   Using [[https://github.com/jwiegley/use-package][use-package]] to automatically install certain packages, as
+   well as the ease of lazily loading them.
+
+   #+BEGIN_SRC elisp
+     (unless (package-installed-p 'use-package)
+       (package-refresh-contents)
+       (package-install 'use-package))
+
+     (require 'use-package)
+   #+END_SRC
+ 
+* Variables
+
+  Generall setting about me that other packages can use. The biggest
+  problem is guessing my email address based on what computer I am
+  using:
+
+  #+BEGIN_SRC elisp
+    (if (equal "markus" user-login-name)
+        (setq user-mail-address "markussievers88@gmail.com")
+      (setq user-mail-address "markus.sievers@k-ai.at"))
+  #+END_SRC
+  
+** Tabs vs Spaces
+
+   I have learned to distrust tabs in my source code, so let's make
+   sure that we only have spaces. See [[http://ergoemacs.org/emacs/emacs_tabs_space_indentation_setup.html][this discussion]] for details.
+
+   #+BEGIN_SRC elisp
+     (setq-default indent-tabs-mode nil)
+     (setq tab-width 2)
+   #+END_SRC
+
+   Make tab key do indent first then completion.
+
+   #+BEGIN_SRC elisp
+     (setq-default tab-always-indent 'complete)
+   #+END_SRC
+
+** TODO Encrypting Files
+
+   This section includes the file encryption using pgp. Since I have
+   no clue about it yet I will leave this for later.
+   
+* Display Settings
+
+  I may not have been using Emacs for as long as Howard Abrams has,
+  but I do appreciate a minimalist approach to its display as well. To
+  clear up the user interface a little be the following settings do
+  some of the essential stuff:
+
+  #+BEGIN_SRC elisp
+    (setq initial-scratch-message "") ;; Uh, I know what Scratch is for
+    (setq visible-bell t)             ;; Get rid of the beeps
+
+    (when (window-system)
+      (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+      (when (fboundp 'horizontal-scroll-bar-mode)
+        (horizontal-scroll-bar-mode -1))
+      (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+  #+END_SRC
+
+** TODO Create List Display Settings
+   Most of the display settings will be stored in their own org files
+   and listed here.
+
+** Mode Line
+
+   Howard Abrams [[file:emacs-mode-line.org][mode-line code]] is a little more complex and deserved
+   its own file.  To initialize and use it use the following code:
+
+   #+BEGIN_SRC elisp
+     (require 'init-mode-line)
+   #+END_SRC
+
+** Whitespace Mode
+
+   You don't want this on all the time, but nice to turn it on every
+   now and then:
+
+   #+BEGIN_SRC elisp
+     (use-package whitespace
+       :bind ("C-c T w" . whitespace-mode)
+       :init
+       (setq whitespace-line-column nil
+             whitespace-display-mappings '((space-mark 32 [183] [46])
+                                           (newline-mark 10 [9166 10])
+                                           (tab-mark 9 [9654 9] [92 9])))
+       :config
+       (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
+       (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
+       (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
+       :diminish whitespace-mode)
+   #+END_SRC
+
+** Fill Mode
+   
+   Automatically wrapping when you get to the end of a line (or the
+   fill-region):
+
+   #+BEGIN_SRC elisp
+     (use-package fill
+       :bind ("C-c T f" . auto-fill-mode)
+       :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
+       :diminish auto-fill-mode)
+   #+END_SRC
+
+* Technical Artifacts
+
+** Setting up the Exec Path
+
+   Make sure that =PATH= variable for finding binary files can is the
+   same as what Emacs will look for binary files. This little magic,
+   starts up a shell, gets its path, and then uses that for the
+   =exec-path=:
+
+   #+BEGIN_SRC elisp
+     (when window-system
+       (let ((path-from-shell (shell-command-to-string "/bin/bash -l -c 'echo $PATH'")))
+         (setenv "PATH" path-from-shell)
+         (setq exec-path (split-string path-from-shell path-separator))))
+   #+END_SRC
+
+** Configure the Graphical Settings
+
+   If we are running in a windowed environment where we can set up
+   fonts and whatnot, call the 'mac' stuff... which will still work
+   for Linux too.
+
+   #+BEGIN_SRC elisp
+     (if (window-system)
+        (require 'init-client)
+      (require 'init-server))
+   #+END_SRC
+
+** Load up the Local Configuration
+
+   Before we finish, we need to check if there is a local file for us
+   to load and evaluate.  We assume the local file has been tangled
+   and provides the =init-local= key:
+
+   #+BEGIN_SRC elisp
+     (require 'init-local nil t)
+   #+END_SRC
+
+   After the first load, we can reload this with a require:
+
+   #+BEGIN_SRC elisp
+     (provide 'init-main)
+   #+END_SRC
+
+   Before you can build this on a new system, make sure that you put
+   the cursor over any of these properties, and hit: =C-c C-c=
+
+#+DESCRIPTION: A literate programming version of my Emacs Initialization script, loaded by the .emacs file.
+#+PROPERTY:    results silent
+#+PROPERTY:    header-args:sh  :tangle no
+#+PROPERTY:    tangle ~/.emacs.d/elisp/init-main.el
+#+PROPERTY:    eval no-export
+#+PROPERTY:    comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
