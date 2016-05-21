@@ -1,11 +1,13 @@
 #+TITLE:  Client Configuration for Emacs
-#+AUTHOR: Howard Abrams
-#+EMAIL:  howard.abrams@gmail.com
-#+DATE:   2014 Mar 22
+#+AUTHOR: Markus Sievers
+#+EMAIL:  markussievers88gmail.com
+#+DATE:   2016-05-20
 #+TAGS:   emacs
 
-The settings in this file are only included on a Macintosh, Linux, or
-other systems with a graphical front-end.
+This file is mostly based on Howard Abram's client conficurations. I
+have made a few modifications, which is why I added myself as the
+author. The settings in this file are only included on a Macintosh,
+Linux, or other systems with a graphical front-end.
 
 * Key Bindings
 
@@ -56,7 +58,7 @@ other systems with a graphical front-end.
   ligatures that doesn't interfere with my org-mode header bullets.
 
   #+BEGIN_SRC elisp
-    (defvar ha/fixed-font-family
+    (defvar ms/fixed-font-family
       (cond ((x-list-fonts "Hasklig")         "Hasklig")
             ((x-list-fonts "Source Code Pro") "Source Code Pro")
             ((x-list-fonts "Anonymous Pro")   "Anonymous Pro")
@@ -64,14 +66,28 @@ other systems with a graphical front-end.
       "My fixed width font based on what is installed, `nil' if not defined.")
   #+END_SRC
 
+  To download the Source Code Pro fonts onto my Ubuntu laptop I used
+  the following code provided by the [[http://askubuntu.com/questions/193072/how-to-use-the-new-adobe-source-code-pro-font][askubuntu]] community:
+
+  #+BEGIN_SRC sh :tangle no
+    #!/bin/bash
+    mkdir /tmp/adodefont
+    cd /tmp/adodefont
+    wget https://github.com/adobe-fonts/source-code-pro/archive/2.010R-ro/1.030R-it.zip
+    unzip 1.030R-it.zip
+    mkdir -p ~/.fonts
+    cp source-code-pro-2.010R-ro-1.030R-it/OTF/*.otf ~/.fonts/
+    fc-cache -f -v
+  #+END_SRC
+
   With the font name situated, I just need to use that to set the
   three magic frame settings:
 
   #+BEGIN_SRC elisp
-    (when ha/fixed-font-family
-      (set-frame-font ha/fixed-font-family)
-      (set-face-attribute 'default nil :font ha/fixed-font-family :height 150)
-      (set-face-font 'default ha/fixed-font-family))
+    (when ms/fixed-font-family
+      (set-frame-font ms/fixed-font-family)
+      (set-face-attribute 'default nil :font ms/fixed-font-family :height 100)
+      (set-face-font 'default ms/fixed-font-family))
   #+END_SRC
 
   Since the headers are based on Adobe’s open source font pair of the
@@ -79,7 +95,7 @@ other systems with a graphical front-end.
   font, [[https://github.com/adobe-fonts/source-code-pro/][Source Code Pro]].
 
   #+BEGIN_SRC  elisp
-    (defvar ha/variable-font-tuple
+    (defvar ms/variable-font-tuple
       (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
             ((x-list-fonts "Verdana")         '(:font "Verdana"))
@@ -144,7 +160,7 @@ other systems with a graphical front-end.
   colors.
 
   #+BEGIN_SRC elisp
-     (deftheme ha/org-theme "Sub-theme to beautify org mode")
+     (deftheme ms/org-theme "Sub-theme to beautify org mode")
   #+END_SRC
 
   Since I’m using the Powerline project, switching my Emacs color
@@ -154,19 +170,19 @@ other systems with a graphical front-end.
   We put all of these requirements in a single function call:
 
   #+BEGIN_SRC elisp
-    (defun ha/change-theme (theme org-block-style)
+    (defun ms/change-theme (theme org-block-style)
       "Changes the color scheme and reset the mode line."
       (funcall theme)
       (powerline-reset)
       (funcall org-block-style)
 
-      (let* ((ha/fixed-font-tuple (list :font ha/fixed-font-family))
+      (let* ((ms/fixed-font-tuple (list :font ms/fixed-font-family))
              (base-font-color     (face-foreground 'default nil 'default))
              (background-color    (face-background 'default nil 'default))
              (primary-color       (face-foreground 'mode-line nil))
              (secondary-color     (face-background 'secondary-selection nil 'region))
              (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
-        (custom-theme-set-faces 'ha/org-theme
+        (custom-theme-set-faces 'ms/org-theme
                                 `(org-agenda-structure ((t (:inherit default :height 2.0 :underline nil))))
                                 `(org-verbatim ((t (:inherit 'fixed-pitched :foreground "#aef"))))
                                 `(org-table ((t (:inherit 'fixed-pitched))))
@@ -174,15 +190,15 @@ other systems with a graphical front-end.
                                 `(org-block-background ((t (:inherit 'fixed-pitched))))
                                 `(org-block-begin-line ((t (:inherit 'fixed-pitched))))
                                 `(org-block-end-line ((t (:inherit 'fixed-pitched))))
-                                `(org-level-8 ((t (,@headline ,@ha/variable-font-tuple))))
-                                `(org-level-7 ((t (,@headline ,@ha/variable-font-tuple))))
-                                `(org-level-6 ((t (,@headline ,@ha/variable-font-tuple))))
-                                `(org-level-5 ((t (,@headline ,@ha/variable-font-tuple))))
-                                `(org-level-4 ((t (,@headline ,@ha/variable-font-tuple :height 1.1))))
-                                `(org-level-3 ((t (,@headline ,@ha/variable-font-tuple :height 1.25))))
-                                `(org-level-2 ((t (,@headline ,@ha/variable-font-tuple :height 1.5))))
-                                `(org-level-1 ((t (,@headline ,@ha/variable-font-tuple :height 1.75))))
-                                `(org-document-title ((t (,@headline ,@ha/variable-font-tuple :height 1.5 :underline nil)))))))
+                                `(org-level-8 ((t (,@headline ,@ms/variable-font-tuple))))
+                                `(org-level-7 ((t (,@headline ,@ms/variable-font-tuple))))
+                                `(org-level-6 ((t (,@headline ,@ms/variable-font-tuple))))
+                                `(org-level-5 ((t (,@headline ,@ms/variable-font-tuple))))
+                                `(org-level-4 ((t (,@headline ,@ms/variable-font-tuple :height 1.1))))
+                                `(org-level-3 ((t (,@headline ,@ms/variable-font-tuple :height 1.25))))
+                                `(org-level-2 ((t (,@headline ,@ms/variable-font-tuple :height 1.5))))
+                                `(org-level-1 ((t (,@headline ,@ms/variable-font-tuple :height 1.75))))
+                                `(org-document-title ((t (,@headline ,@ms/variable-font-tuple :height 1.5 :underline nil)))))))
   #+END_SRC
 
   And the default startup goes to...night...unless I'm at work, and
@@ -190,20 +206,20 @@ other systems with a graphical front-end.
 
   #+BEGIN_SRC elisp
     (if (equal "sieversm" user-login-name)
-      (ha/change-theme 'color-theme-sanityinc-tomorrow-day
+      (ms/change-theme 'color-theme-sanityinc-tomorrow-day
                        'org-src-color-blocks-light)
-      (ha/change-theme 'color-theme-sanityinc-tomorrow-night
+      (ms/change-theme 'color-theme-sanityinc-tomorrow-night
                        'org-src-color-blocks-dark))
   #+END_SRC
 
   My main reason for wanting to use the color theme project is to
-  switch between /black on white/ during the day, and /white on
-  black/ at night. Because I have to pass function references to
-  my =define-sequence= macro, I use the =list= function call instead of
-  quoting the list:
+  switch between /black on white/ during the day, and /white on black/
+  at night. Because I have to pass function references to my
+  =define-sequence= macro defined in in [[file:emacs-support.org][init-support.el]], I use the
+  =list= function call instead of quoting the list:
 
-  #+BEGIN_SRC elisp :tangle no
-    (define-sequence 'personal-theme-map "<f9> d" 'ha/change-theme
+  #+BEGIN_SRC elisp
+    (define-sequence 'personal-theme-map "<f9> d" 'ms/change-theme
       (list (list "d" 'color-theme-sanityinc-tomorrow-day      'org-src-color-blocks-light)  ; White on Black
             (list "l" 'color-theme-sanityinc-tomorrow-eighties 'org-src-color-blocks-dark)   ; Lt. Gray on Gray
             (list "m" 'color-theme-sanityinc-tomorrow-bright   'org-src-color-blocks-dark)   ; Bright on Black
@@ -239,8 +255,8 @@ other systems with a graphical front-end.
   #+END_SRC
 
   When I am using my large monitors with a full-screen Emacs session
-  with two or three side-by-side windows, I want set them to a fixed
-  width:
+  with two or three side-by-side windows, I want to set them to a
+  fixed width:
 
   #+BEGIN_SRC elisp
     (defun set-window-width (&optional width)
@@ -261,33 +277,6 @@ other systems with a graphical front-end.
   (setq ring-bell-function 'ignore)
   #+END_SRC
 
-* Twitter
-
-  I know, I know, reading my [[http://www.emacswiki.org/emacs-en/TwitteringMode][twitter feed in Emacs]] is pretty geeking
-  awesome. And I can filter out tweets that match a pattern that annoys me:
-
-  #+BEGIN_SRC elisp
-    (use-package twittering-mode
-      :init
-      (setq twittering-tweet-filters '("NPR" "#burritowatch"))
-
-      (defun twittering-filter-tweets ()
-        "Call string-match on all new tweets"
-        (setq non-matching-statuses '())
-        (dolist (status twittering-new-tweets-statuses)
-          (setq matched-tweets 0)
-          (dolist (pat twittering-tweet-filters)
-            (if (string-match pat (cdr (assoc 'text status)))
-                (setq matched-tweets (+ 1 matched-tweets))))
-          (if (= 0 matched-tweets)
-              (setq non-matching-statuses
-                    (append non-matching-statuses `(,status)))))
-        (setq new-statuses non-matching-statuses))
-
-      (add-hook 'twittering-edit-mode-hook 'flyspell-mode)
-      (add-hook 'twittering-new-tweets-hook 'twittering-filter-tweets))
-  #+END_SRC
-
 * Technical Artifacts
 
   Load up the particular operating system variation.
@@ -298,7 +287,8 @@ other systems with a graphical front-end.
       nil)
   #+END_SRC
 
-  Notice "Windows" is not listed. That is by design.
+  Notice "Windows" is not listed. That is by design. At least for
+  now. 
 
   Make sure that we can simply =require= this library.
 

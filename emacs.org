@@ -14,6 +14,43 @@
 
 ** Emacs Executable
 
+   If you want to install Emacs on Ubuntu all you have to do is run
+   this from the terminal to install the pre-compiled version
+   included in the Ubuntu repository:
+
+   #+BEGIN_SRC sh :tangle no
+     sudo apt-get update
+     sudo apt-get install emacs -y
+   #+END_SRC
+
+   You may, of course, get the source code and compile it
+   yourself. But for me using the pre-compiled version is sufficient
+   because I do not have to fight around with dependency issues.
+
+   In case you are one of the unfortunate ones that have use a windows
+   operating system you have the option to download an Emacs
+   compilation from one of the gnu mirrors. The
+   [[http://www.gnu.org/software/emacs/manual/html_mono/efaq-w32.html][GNU_Emacs_FAQ_for_MS_Windows]] section on the [[http://www.gnu.org/software/emacs/manual/][GNU_Emacs_Online_Manual]]
+   web page will lead to to the nearest mirror where you can download
+   the latest compiled version of Emacs. Once you downloaded and
+   unpacked the /Zip/ file you have to do a few more modifications:
+
+      1) Rename and copy the unpacked Emacs folder to your /Program
+         Files/ or /Program Files (x86)/ folder.
+      2) Add the /bin/ sub-directory to the /PATH/ variable.
+      3) Create the /HOME/ variable in your windows variables pointing
+         to your /$HOME/ directory (Typically located at C:/Users/username/)
+      4) Within the /bin/ sub-directory execute the /addpm.exe/
+         program as an administrator to "install" Emacs.
+      5) I like to enable the *Run as administrator* option for the
+         /emacs.exe/ and /runemacs.exe/ file such that I have root
+         access rights when running commands from within Emacs.
+   
+   The previous steps are also nicely visualized in this YouTube
+   tutorial:
+
+   [[https://youtu.be/g6kgF5ZAf44][How_to_Install_Emacs_editor_in_Windows]]
+      
 ** Loading this File
 
    To "load" the contents of this file, add the following to
@@ -25,20 +62,6 @@
      (load-file "~/.emacs.d/elisp/init-main.el")
 
      (server-start)   
-   #+END_SRC
-
-   Because at work we have to tunnel through the proxy and want it to
-   automatically check where I am using Emacs the following
-   lines need to be added to our =$HOME/.emacs= as well:
-
-   #+BEGIN_SRC elisp :tangle no
-     ;; Make sure that we can get through the proxy at work, 
-     ;; but only at work
-     (if (string= user-login-name '<log-in-name>)
-         (setq url-proxy-services
-              '(("http" . "127.0.0.1:3128")
-                ("https" . "127.0.0.1:3128")))
-      'false)
    #+END_SRC
 
 * General Settings
@@ -94,29 +117,51 @@
 
    Load up my special collection of enhancements to Emacs Lisp:
 
-   #+BEGIN_SRC 
-     ;; Add the require statements for the personalized .el files
+   #+BEGIN_SRC elisp
      (require 'cl)
+     (require 'init-support)
    #+END_SRC
+   
 * Package Initialization
 ** Package Manager
    
    Emacs has become like every other operating system, and now has a
    [[http://tromey.com/elpa/][package manager]] with its own collection repository, but since it is
    so conservative, we need to add more repositories to get all the
-   sweet goodness, I demand.
+   sweet goodness, I demand. But before I can get a hold of all those
+   glorious packages I need to make sure that I can get through the
+   proxy at work, but only at work:
+
+   #+BEGIN_SRC elisp
+     ;; Make sure that we can get through the proxy at work, 
+     ;; but only at work
+     (if (string= user-login-name 'sieversm)
+         (setq url-proxy-services
+              '(("http" . "127.0.0.1:3128")
+                ("https" . "127.0.0.1:3128")))
+      'false)
+   #+END_SRC
+
+   Now I can get to all the juicy stuff:
 
    #+BEGIN_SRC elisp
      (require 'package)
 
      (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
                               ("gnu"       . "http://elpa.gnu.org/packages/")
-                              ("melpa"     . "http://melpa.milkbox.net/packages/")
-                              ("marmalade" . "http://marmalade-repo.org/packages/")))
+                              ("melpa"     . "https://melpa.org/packages/")))
 
      (package-initialize)
    #+END_SRC
 
+   These is also the *marmalade* repository, but I have only bad
+   things about it. Thus I am not including it here. If you want to
+   add the following to the previous archive list:
+
+   #+BEGIN_SRC elisp :tangle no
+     ("marmalade" . "http://marmalade-repo.org/packages/")
+   #+END_SRC
+   
    The package management system doesn't come with a
    programmatic way to specify what packages /should/ be
    installed. Here is my solution until I convert to [[Use-Package][use-package]].
@@ -153,8 +198,8 @@
 
   #+BEGIN_SRC elisp
     (if (equal "markus" user-login-name)
-        (setq user-mail-address "markussievers88@gmail.com")
-      (setq user-mail-address "markus.sievers@k-ai.at"))
+        (setq user-mail-address "markussievers88@gmail.com") ; home
+      (setq user-mail-address "markus.sievers@k-ai.at"))     ; work
   #+END_SRC
   
 ** Tabs vs Spaces
@@ -257,7 +302,7 @@
          (setq exec-path (split-string path-from-shell path-separator))))
    #+END_SRC
 
-** Configure the Graphical Settings
+** TODO Configure the Graphical Settings
 
    If we are running in a windowed environment where we can set up
    fonts and whatnot, call the 'mac' stuff... which will still work
