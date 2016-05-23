@@ -286,7 +286,7 @@
        :diminish auto-fill-mode)
    #+END_SRC
 
-* Key Bindings
+* TODO Key Bindings
 ** Hydra Sequences
 
    I’m starting to appreciate the [[https://github.com/abo-abo/hydra][Hydra project]].
@@ -551,6 +551,152 @@
             ("C-x C-b" . kpm-list))
    #+END_SRC
 
+* TODO Loading and Finding Files
+** Dired Options
+
+   Between =M-!= and starting [[Eshell][Eshell]], comes =dired= (=C-x d=).
+
+   #+BEGIN_SRC elisp
+     (setq ls-lisp-use-insert-directory-program nil)
+   #+END_SRC
+
+   This enhancement to dired hides the ugly details until you hit
+   '(' and shows the details with ')'. I also change the [...] to a
+   simple asterisk.
+
+   #+BEGIN_SRC elisp
+     (use-package dired-details
+       :ensure t
+       :init   (setq dired-details-hidden-string "* ")
+       :config (dired-details-install))
+   #+END_SRC
+
+   The ability to create a dired buffer based on searching for files
+   in a directory tree with =find-name-dired= is fantastic. The
+   [[http://www.masteringemacs.org/articles/2011/03/25/working-multiple-files-dired/][following magic]] optimizes this approach:
+
+   #+BEGIN_SRC elisp
+     (use-package find-dired
+        :ensure t
+        :init (setq find-ls-option '("-print0 | xargs -0 ls -od" . "-od")))
+   #+END_SRC
+
+   The [[http://pragmaticemacs.com/emacs/quickly-preview-images-and-other-files-with-peep-dired/][peep project]] allows you to preview files before loading them
+   into a dedicated buffer:
+
+   #+BEGIN_SRC elisp
+     (use-package peep-dired
+       :defer t ; don't access `dired-mode-map' until `peep-dired' is loaded
+       :bind (:map dired-mode-map
+                   ("P" . peep-dired)))
+   #+END_SRC
+
+   The [[http://www.masteringemacs.org/articles/2014/04/10/dired-shell-commands-find-xargs-replacement/][dired-x project]] seems useful:
+
+   #+BEGIN_SRC elisp
+     (require 'dired-x)
+   #+END_SRC
+
+** IDO (Interactively DO Things)
+
+   According to [[http://www.masteringemacs.org/articles/2010/10/10/introduction-to-ido-mode/][Mickey]], IDO is the greatest thing.
+
+   #+BEGIN_SRC elisp
+     (use-package ido
+       :ensure t
+       :init  (setq ido-enable-flex-matching t
+                    ido-ignore-extensions t
+                    ido-use-virtual-buffers t
+                    ido-everywhere t)
+       :config
+       (ido-mode 1)
+       (ido-everywhere 1)
+       (add-to-list 'completion-ignored-extensions ".pyc"))
+   #+END_SRC
+
+   Add to IDO, the [[https://github.com/lewang/flx][FLX]] package:
+
+   #+BEGIN_SRC elisp
+     (use-package flx-ido
+        :ensure t
+        :init (setq ido-enable-flex-matching t
+                    ido-use-faces nil)
+        :config (flx-ido-mode 1))
+   #+END_SRC
+
+   According to [[https://gist.github.com/rkneufeld/5126926][Ryan Kneufeld]], we could make IDO work vertically,
+   which is much easier to read. For this, I use [[https://github.com/gempesaw/ido-vertical-mode.el][ido-vertically]]:
+
+   #+BEGIN_SRC elisp
+     (use-package ido-vertical-mode
+       :ensure t
+       :init               ; I like up and down arrow keys:
+       (setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
+       :config
+       (ido-vertical-mode 1))
+   #+END_SRC
+
+** Helm
+
+   Obviously, Helm would be helpful if I can learn all the bindings,
+   so:
+
+   #+BEGIN_SRC elisp
+     (use-package helm
+       :ensure t
+       :init (add-to-list 'guide-key/guide-key-sequence "C-x c")
+       (use-package helm-config))   ;; Binds C-x c to the helm bidness.
+   #+END_SRC
+
+   Re-read [[http://tuhdo.github.io/helm-intro.html][this essay on Helm]].
+
+** Recent File List
+
+   According to [[http://www.emacswiki.org/emacs-es/RecentFiles][this article]], Emacs already has the recent file
+   listing available, just not turned on.
+
+   #+BEGIN_SRC elisp
+     (use-package recentf
+       :init
+       (setq recentf-max-menu-items 25)
+       (setq recentf-auto-cleanup 'never)
+       ;; (setq recentf-keep '(file-remote-p file-readable-p))
+       (recentf-mode 1)
+       :bind ("C-c f f" . recentf-open-files))
+   #+END_SRC
+
+   We do not want to stat all the files when Emacs starts up because
+   files read by Tramp will slow down the start time.
+
+** Backup Settings
+
+   This setting moves all backup files to a central location.
+   Got it from [[http://whattheemacsd.com/init.el-02.html][this page]].
+
+   #+BEGIN_SRC elisp
+     (setq backup-directory-alist
+           `(("." . ,(expand-file-name
+                      (ms/emacs-subdirectory "backups")))))
+   #+END_SRC
+
+   Make backups of files, even when they're in version control
+
+   #+BEGIN_SRC elisp
+     (setq vc-make-backup-files t)
+   #+END_SRC
+
+   And let’s make sure our files are saved if we wander off and
+   defocus the Emacs application:
+
+   #+BEGIN_SRC elisp
+     (defun save-all ()
+       "Saves all dirty buffers without asking for confirmation."
+       (interactive)
+       (save-some-buffers t))
+
+     (add-hook 'focus-out-hook 'save-all)
+   #+END_SRC
+
 * Word Smithing
 ** Auto Insertion
 
@@ -704,13 +850,13 @@
        :config
        (if (eq system-type 'windows-nt)
            (setq ispell-program-name "c:/Program Files (x86)/Aspell/bin/aspell.exe")
-         (setq ispell-program-name "/usr/local/bin/aspell"))
+         (setq ispell-program-name "aspell"))
 
        (setq ispell-dictionary "american" ; better for aspell
              ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")
              ispell-list-command "--list")
 
-       (add-to-list 'ispell-local-dictionary-alist '(nil
+       (add-to-list 'ispell-local-dictionary-alist '("american"
                                                      "[[:alpha:]]"
                                                      "[^[:alpha:]]"
                                                      "['‘’]"
@@ -723,7 +869,20 @@
    ASpell automatically configures a personal dictionary
    at =~/.aspell.en.pws=, so no need to configure that.
 
-* Org-Mode
+   Sometimes I would like to write some stuff in another language as
+   well. For me that usually happens to be German. To change the
+   dictionary, which I assume will not happen too many times, I have
+   created the following sequence:
+
+   #+BEGIN_SRC elisp
+     (define-sequence 'dictionary-select-map "<f9> d" 'ispell-change-dictionary
+       (list (list "e" "american")
+             (list "a" "american")
+             (list "d" "german")
+             (list "g" "german")))
+   #+END_SRC
+
+* TODO Org-Mode
 
   See [[file:emacs-org.org][emacs-org-mode.el]] for details on my [[http://www.orgmode][Org-Mode]] settings.
 
@@ -731,6 +890,16 @@
     (require 'init-org-mode)
   #+END_SRC
 
+  Add reftex support when within orgmode
+  
+* TODO LaTeX
+
+  For any kind of publication one should use LaTeX. You ask why? Well,
+  I don't think you deserve the answer.
+
+  Create an =emacs-latex.org= file that includes all my settings from my
+  previous =.emacs= file
+  
 * Technical Artifacts
 
 ** Setting up the Exec Path

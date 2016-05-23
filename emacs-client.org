@@ -52,15 +52,10 @@ Linux, or other systems with a graphical front-end.
   font based on the monospace du jour... While I [[http://mplus-fonts.sourceforge.jp/mplus-outline-fonts/download/index.html][M+]] because it is
   thinner and has more white space between lines, but [[http://blogs.adobe.com/typblography/2012/09/source-code-pro.html][Source Code Pro]]
   is so attractive, oh, and then there is Anonymous Pro...
-
-  While thicker, [[https://github.com/tonsky/FiraCode][Fira]] does symbol ligatures. However, [[https://github.com/i-tu/Hasklig][Hasklig]] is a
-  nice font that is thinner and easier to read, with /some/ symbolic
-  ligatures that doesn't interfere with my org-mode header bullets.
-
+  
   #+BEGIN_SRC elisp
     (defvar ms/fixed-font-family
-      (cond ((x-list-fonts "Hasklig")         "Hasklig")
-            ((x-list-fonts "Source Code Pro") "Source Code Pro")
+      (cond ((x-list-fonts "Source Code Pro") "Source Code Pro")
             ((x-list-fonts "Anonymous Pro")   "Anonymous Pro")
             ((x-list-fonts "M+ 1mn")          "M+ 1mn"))
       "My fixed width font based on what is installed, `nil' if not defined.")
@@ -219,7 +214,7 @@ Linux, or other systems with a graphical front-end.
   =list= function call instead of quoting the list:
 
   #+BEGIN_SRC elisp
-    (define-sequence 'personal-theme-map "<f9> d" 'ms/change-theme
+    (define-sequence 'personal-theme-map "<f9> t" 'ms/change-theme
       (list (list "d" 'color-theme-sanityinc-tomorrow-day      'org-src-color-blocks-light)  ; White on Black
             (list "l" 'color-theme-sanityinc-tomorrow-eighties 'org-src-color-blocks-dark)   ; Lt. Gray on Gray
             (list "m" 'color-theme-sanityinc-tomorrow-bright   'org-src-color-blocks-dark)   ; Bright on Black
