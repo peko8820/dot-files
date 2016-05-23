@@ -79,7 +79,7 @@ Linux, or other systems with a graphical front-end.
     cp source-code-pro-2.010R-ro-1.030R-it/OTF/*.otf ~/.fonts/
     fc-cache -f -v
   #+END_SRC
-
+  
   With the font name situated, I just need to use that to set the
   three magic frame settings:
 

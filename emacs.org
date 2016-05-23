@@ -149,7 +149,7 @@
 
      (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
                               ("gnu"       . "http://elpa.gnu.org/packages/")
-                              ("melpa"     . "https://melpa.org/packages/")))
+                              ("melpa"     . "http://melpa.org/packages/")))
 
      (package-initialize)
    #+END_SRC
@@ -285,6 +285,451 @@
        :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
        :diminish auto-fill-mode)
    #+END_SRC
+
+* Key Bindings
+** Hydra Sequences
+
+   I’m starting to appreciate the [[https://github.com/abo-abo/hydra][Hydra project]].
+
+   #+BEGIN_SRC elisp
+     (use-package hydra
+       :ensure t
+       :config
+       (hydra-add-font-lock))
+   #+END_SRC
+
+   Easily manipulate the size of the windows using the arrow keys in a
+   particular buffer window.
+
+   #+BEGIN_SRC elisp
+     (require 'windmove)
+
+     (defun hydra-move-splitter-left (arg)
+       "Move window splitter left."
+       (interactive "p")
+       (if (let ((windmove-wrap-around))
+             (windmove-find-other-window 'right))
+           (shrink-window-horizontally arg)
+         (enlarge-window-horizontally arg)))
+
+     (defun hydra-move-splitter-right (arg)
+       "Move window splitter right."
+       (interactive "p")
+       (if (let ((windmove-wrap-around))
+             (windmove-find-other-window 'right))
+           (enlarge-window-horizontally arg)
+         (shrink-window-horizontally arg)))
+
+     (defun hydra-move-splitter-up (arg)
+       "Move window splitter up."
+       (interactive "p")
+       (if (let ((windmove-wrap-around))
+             (windmove-find-other-window 'up))
+           (enlarge-window arg)
+         (shrink-window arg)))
+
+     (defun hydra-move-splitter-down (arg)
+       "Move window splitter down."
+       (interactive "p")
+       (if (let ((windmove-wrap-around))
+             (windmove-find-other-window 'up))
+           (shrink-window arg)
+         (enlarge-window arg)))
+
+     (defhydra hydra-splitter (global-map "<f9>")
+       "splitter"
+       ("<left>" hydra-move-splitter-left)
+       ("<down>" hydra-move-splitter-down)
+       ("<up>" hydra-move-splitter-up)
+       ("<right>" hydra-move-splitter-right))
+   #+END_SRC
+
+   Other Hydra sequences are associated with the package they control.
+** Displaying Command Sequences
+
+   Many command sequences may be logical, but who can remember them
+   all? Use [[https://github.com/kai2nenobu/guide-key][guide-key]] to display the final function name. This isn't
+   as nice as Hydra, but useful for built-in key sequences:
+
+   #+BEGIN_SRC elisp
+     (use-package guide-key
+       :ensure t
+       :init    (setq guide-key/guide-key-sequence
+                      '("C-x r"     ; rectanges and registers
+                        "C-x 4"     ; window commands
+                        "M-s h"     ; hi-lock highlighting
+                        "C-x w"     ; alternative to M-s ...
+                        "C-c @"     ; hs-hide-show mode
+                        "C-c p"     ; projectile
+                        "<f2>"
+                        "<f9>"
+                        (org-mode "C-c C-x")))
+       :config  (guide-key-mode 1)
+       :diminish guide-key-mode)
+   #+END_SRC
+
+** Function Key Definitions
+   
+   Emacs has never seen a need for function keys, and I agree...for
+   the most part. For things really /away from the flow/, they don't
+   seem to bad. But what are those?
+
+   - *F1* - Help? Isn't Control-H good enough?
+   - *F2* - Special odd, little-used characters that I have to think
+            about before remembering what its binding.
+   - *F3* - Define a keyboard macro
+   - *F4* - Replay a keyboard macro
+   - *F5* - Use org-mode’s Mark Ring feature globally
+   - *F6* - Open to temporary, changeable commands...
+   - *F7* - Switch to another window ... Control goes the other way.
+   - *F8* - Switch to buffer
+   - *F9* - My extension (replacement?) for =C-c= for changing colors
+     and other odd bindings that I actually don't use that often.
+
+   #+BEGIN_SRC elisp
+     (global-set-key (kbd "<f5>") 'org-mark-ring-push)
+     (global-set-key (kbd "C-<f5>") 'org-mark-ring-goto)
+     (global-set-key (kbd "<f7>") 'other-window)
+     (global-set-key (kbd "C-<f7>") (lambda () (interactive) (other-window -1)))
+   #+END_SRC
+
+*** F2 and F9 Helpers
+
+    The F9 prefix is scattered about my config files.
+
+    #+BEGIN_SRC elisp
+      (define-prefix-command 'personal-global-map)
+      (global-set-key (kbd "<f9>") 'personal-global-map)
+    #+END_SRC
+
+    Unlike the *F9* bindings, all the *F2* key-bindings happen in a
+    single [[file:emacs-f2.org][library file]]:
+
+    #+BEGIN_SRC elisp
+      (require 'init-f2)
+    #+END_SRC
+
+** Highlighting and Narrowing
+
+   I like the ability to highlight random text.
+
+   - =M-s h .= :: highlight-symbol-at-point
+   - =M-s h l= :: highlight-lines-matching-regexp
+   - =M-s h p= :: highlight-phrase
+   - =M-s h r= :: highlight-regexp
+   - =M-s h u= :: unhighlight-regexp
+
+   May get specific highlights automatically for certain files. We
+   begin by highlighting lines in *.log files.
+
+   #+BEGIN_SRC elisp
+     (defun ms/highlite-logs ()
+       "Highlight certain lines in specific files. Currently, only log files are supported."
+       (interactive)
+       (when (equal "log" (file-name-extension (buffer-file-name)))
+             (hi-lock-mode 1)
+             (highlight-lines-matching-regexp "ERROR:" 'hi-red-b)
+             (highlight-lines-matching-regexp "NOTE:" 'hi-blue-b)))
+   #+END_SRC
+
+   The condition in this function that checks for the =log= extension,
+   allows me to hook it to the loading of any file:
+
+   #+BEGIN_SRC elisp :tangle no
+     (add-hook 'find-file-hook 'ms/highlite-logs)
+   #+END_SRC
+
+   Turn on specific word groupings for specific occasions. We begin
+   with highlighting keywords I use during note-taking sessions at
+   the end of a sprint.
+
+   #+BEGIN_SRC elisp
+     (defun ms/sprint-retrospective-highlighting ()
+       "Highlights the good, the bad and the improvements to make when taking notes."
+       (interactive)
+       (hi-lock-mode t)
+       (highlight-lines-matching-regexp "^   [-*] " 'hi-black-b)
+       (highlight-phrase "TODO:?" 'hi-black-b)
+       (highlight-regexp "(?Good)?:?" 'hi-green-b)
+       (highlight-regexp "(?Bad)?:?" 'hi-red-b)
+       (highlight-regexp "Imp\\(rove\\)?:" 'hi-blue-b))
+   #+END_SRC
+
+   This works really well with other commands, including
+   [[https://github.com/Bruce-Connor/fancy-narrow][fancy-narrow]], where I can visually high-light a section of a
+   buffer. Great for code-reviews and other presentations.
+
+   #+BEGIN_SRC elisp
+     (use-package fancy-narrow
+       :ensure t
+       :config
+       (defun ms/highlight-block ()
+         "Highlights a 'block' in a buffer defined by the first blank
+          line before and after the current cursor position. Uses the
+          'fancy-narrow' mode to high-light the block."
+         (interactive)
+         (let (cur beg end)
+           (setq cur (point))
+           (setq end (or (re-search-forward  "^\s*$" nil t) (point-max)))
+           (goto-char cur)
+           (setq beg (or (re-search-backward "^\s*$" nil t) (point-min)))
+           (fancy-narrow-to-region beg end)
+           (goto-char cur)))
+
+       (defun ms/highlight-section (num)
+         "If some of the buffer is highlighted with the `fancy-narrow'
+          mode, then un-highlight it by calling `fancy-widen'.
+
+          If region is active, call `fancy-narrow-to-region'.
+
+          If NUM is 0, highlight the current block (delimited by blank
+          lines). If NUM is positive or negative, highlight that number
+          of lines.  Otherwise, called `fancy-narrow-to-defun', to
+          highlight current function."
+         (interactive "p")
+         (cond
+          ((fancy-narrow-active-p)  (fancy-widen))
+          ((region-active-p)        (fancy-narrow-to-region (region-beginning) (region-end)))
+          ((= num 0)                (ms/highlight-block))
+          ((= num 1)                (fancy-narrow-to-defun))
+          (t                        (progn (ms/expand-region num)
+                                           (fancy-narrow-to-region (region-beginning) (region-end))))))
+
+       :bind ("C-M-+" . ms/highlight-section))
+   #+END_SRC
+
+   This nifty function from [[http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html][Endless Parenthesis]] is a nice replacement
+   for many other narrowing keybindings that I use:
+
+   #+BEGIN_SRC elisp
+     (defun narrow-or-widen-dwim (p)
+       "If the buffer is narrowed, it widens. Otherwise, it narrows intelligently.
+     Intelligently means: region, subtree, or defun, whichever applies
+     first.
+
+     With prefix P, don't widen, just narrow even if buffer is already
+     narrowed."
+       (interactive "P")
+       (declare (interactive-only))
+       (cond ((and (buffer-narrowed-p) (not p)) (widen))
+             ((region-active-p)
+              (narrow-to-region (region-beginning) (region-end)))
+             ((derived-mode-p 'org-mode) (org-narrow-to-subtree))
+             (t (narrow-to-defun))))
+
+     (global-set-key (kbd "C-x n x") 'narrow-or-widen-dwim)
+   #+END_SRC
+   
+** Jumping to Windows
+
+  Set up [[https://github.com/abo-abo/ace-window][ace-window]] mode:
+
+  #+BEGIN_SRC elisp
+    (use-package ace-window
+      :ensure t
+      :init
+        (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
+        (global-set-key (kbd "C-x o") 'ace-window)
+      :diminish ace-window-mode)
+  #+END_SRC
+
+** Selecting a Buffer
+   I like =IDO= for switching buffers since I typically know what I'm after:
+
+   #+BEGIN_SRC elisp
+    (global-set-key (kbd "<f8>") 'ido-switch-buffer)
+    (global-set-key (kbd "S-<f8>") 'ibuffer)
+   #+END_SRC
+
+   I like [[https://github.com/KMahoney/kpm-list][kpm-list]] a bit better than =ibuffer=, but I really don’t use
+   either more than =ido-switch-buffer=. Still:
+
+   #+BEGIN_SRC elisp
+    (use-package kpm-list
+      :ensure t
+      :bind ("S-<f8>" . kpm-list)
+            ("C-x C-b" . kpm-list))
+   #+END_SRC
+
+* Word Smithing
+** Auto Insertion
+
+   Just beginning to get a collection of templates to automatically
+   insert if a blank file is loaded.
+
+   #+BEGIN_SRC elisp
+     (use-package autoinsert
+       :init
+       (setq auto-insert-directory (ms/emacs-subdirectory "templates/"))
+       ;; Don't want to be prompted before insertion:
+       (setq auto-insert-query nil)
+
+       (add-hook 'find-file-hook 'auto-insert)
+       (auto-insert-mode 1))
+   #+END_SRC
+
+   Add a =:config= section to configure static insertion, and add:
+
+   #+BEGIN_SRC elisp :tangle no
+     (define-auto-insert "\\.html?$" "default-html.html")
+   #+END_SRC
+
+   However, auto insertion requires entering data for particular fields,
+   and for that Yasnippet is better, so in this case, we combine them:
+
+   #+BEGIN_SRC elisp
+     (defun ms/autoinsert-yas-expand()
+       "Replace text in yasnippet template."
+       (yas-expand-snippet (buffer-string) (point-min) (point-max)))
+   #+END_SRC
+
+   Now bind many of the templates for auto-insert and field expansion:
+
+   #+BEGIN_SRC elisp
+     (use-package autoinsert
+       :config
+       (define-auto-insert "\\.el$" ["default-lisp.el" ms/autoinsert-yas-expand])
+       (define-auto-insert "\\.sh$" ["default-sh.sh" ms/autoinsert-yas-expand])
+       (define-auto-insert "/bin/"  ["default-sh.sh" ms/autoinsert-yas-expand])
+       (define-auto-insert "\\.html?$" ["default-html.html" ms/autoinsert-yas-expand]))
+   #+END_SRC
+
+** Auto Complete
+
+   Using [[http://company-mode.github.io/][company-mode]] for all my auto completion needs.
+
+   Like [[https://github.com/vspinu/company-math][this idea]] of being able to easily insert math
+   symbols based on LaTeX keywords. Start typing a backslash.
+
+   #+BEGIN_SRC elisp
+     (use-package company
+       :ensure t
+       :init
+       (add-hook 'after-init-hook 'global-company-mode)
+       :config
+       (add-to-list 'company-backends 'company-math-symbols-unicode)
+       :diminish company-mode)
+   #+END_SRC
+
+   Take advantage of idle time by displaying some documentation
+   using [[https://www.github.com/expez/company-quickhelp][company-quickhelp]] project.
+
+   #+BEGIN_SRC elisp
+     (use-package company-quickhelp
+       :ensure t
+       :config
+       (company-quickhelp-mode 1))
+   #+END_SRC
+
+   This also requires [[https://github.com/pitkali/pos-tip/blob/master/pos-tip.el][pos-tip]].
+
+** Yasnippets
+
+   The [[https://github.com/capitaomorte/yasnippet][yasnippet project]] allows me to create snippets of code that
+   can be brought into a file, based on the language.
+
+   #+BEGIN_SRC elisp
+     (use-package yasnippet
+       :ensure t
+       :init
+       (yas-global-mode 1)
+       :config
+       (add-to-list 'yas-snippet-dirs (ms/emacs-subdirectory "snippets")))
+   #+END_SRC
+
+   *Note:*: the =snippets= directory contains directories for each
+   mode, e.g.  =clojure-mode= and =org-mode=.
+
+** Spelling Correction with Abbreviation Mode
+
+   According to [[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][this discussion]], we can correct a misspelled word
+   with =C-x C-i= and it will use the abbreviation mode to
+   automatically correct that word...as long as you misspell it the
+   same way each time.
+
+   #+BEGIN_SRC elisp
+     (defun ms/ispell-word-then-abbrev (p)
+       "Call `ispell-word'. Then create an abbrev for the correction made.
+     With prefix P, create local abbrev. Otherwise it will be global."
+       (interactive "P")
+       (let ((bef (downcase (or (thing-at-point 'word) ""))) aft)
+         (call-interactively 'ispell-word)
+         (setq aft (downcase (or (thing-at-point 'word) "")))
+         (unless (string= aft bef)
+           (message "\"%s\" now expands to \"%s\" %sally"
+                    bef aft (if p "loc" "glob"))
+           (define-abbrev
+             (if p global-abbrev-table local-abbrev-table)
+             bef aft))))
+
+     (global-set-key (kbd "C-x C-i") 'ms/ispell-word-then-abbrev)
+   #+END_SRC
+
+   Need to turn on the mode, but not necessarily show it:
+
+   #+BEGIN_SRC elisp
+     (use-package abbrev
+       :bind ("C-c T a" . abbrev-mode)
+       :init (setq save-abbrevs t)
+             (setq-default abbrev-mode t)
+       :diminish abbrev-mode)
+   #+END_SRC
+
+** Spell Checking
+
+   I like spell checking with [[http://www.emacswiki.org/emacs/FlySpell][FlySpell]], which uses the built-in
+   spell-check settings of [[https://www.gnu.org/software/ispell/][ispell]].
+
+   The [[http://aspell.net][ASpell]] project is better supported than ISpell.
+
+   #+BEGIN_SRC sh :tangle no
+     brew install aspell
+   #+END_SRC
+
+   Start for all text modes (but not for log files):
+
+   #+BEGIN_SRC elisp
+     (use-package flyspell
+       :ensure t
+       :diminish flyspell-mode
+       :init
+       (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+
+       (dolist (hook '(text-mode-hook org-mode-hook))
+         (add-hook hook (lambda () (flyspell-mode 1))))
+
+       (dolist (hook '(change-log-mode-hook log-edit-mode-hook org-agenda-mode-hook))
+         (add-hook hook (lambda () (flyspell-mode -1))))
+
+       :config
+       (if (eq system-type 'windows-nt)
+           (setq ispell-program-name "c:/Program Files (x86)/Aspell/bin/aspell.exe")
+         (setq ispell-program-name "/usr/local/bin/aspell"))
+
+       (setq ispell-dictionary "american" ; better for aspell
+             ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")
+             ispell-list-command "--list")
+
+       (add-to-list 'ispell-local-dictionary-alist '(nil
+                                                     "[[:alpha:]]"
+                                                     "[^[:alpha:]]"
+                                                     "['‘’]"
+                                                     t
+                                                     ("-d" "en_US")
+                                                     nil
+                                                     utf-8)))
+   #+END_SRC
+
+   ASpell automatically configures a personal dictionary
+   at =~/.aspell.en.pws=, so no need to configure that.
+
+* Org-Mode
+
+  See [[file:emacs-org.org][emacs-org-mode.el]] for details on my [[http://www.orgmode][Org-Mode]] settings.
+
+  #+BEGIN_SRC elisp
+    (require 'init-org-mode)
+  #+END_SRC
 
 * Technical Artifacts
 
