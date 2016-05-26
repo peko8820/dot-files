@@ -1,7 +1,7 @@
 #+TITLE:  Emacs Configuration File
 #+AUTHOR: Markus Sievers
 #+EMAIL:  markussievers88@gmail.com
-#+DATE:   2016-05-19
+#+DATE:   [2016-05-19]
 #+TAGS:   emacs
 
 * Introduction
@@ -115,13 +115,79 @@
      (add-to-list 'load-path (ms/emacs-subdirectory "elisp"))
    #+END_SRC
 
-   Load up my special collection of enhancements to Emacs Lisp:
+   Load up my special collection of enhancements to Emacs Lisp ([[file:emacs-support.org][emacs-support.org]]):
 
    #+BEGIN_SRC elisp
      (require 'cl)
      (require 'init-support)
    #+END_SRC
-   
+
+** Setting up the =$PATH= variable
+
+   In case I use Emacs on a windows computer I need to take care that
+   I have the necessary directories added to the =exec-path=
+   variable. At this moment I manually add the directories with the
+   following functions:
+
+   #+BEGIN_SRC elisp
+     (when (eq system-type 'windows-nt)
+       (let (
+             (mypaths
+              '(
+                "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+                "C:/Program Files/Perl64/site/bin"
+                "C:/Program Files/Perl64/bin"
+                "C:/Python27/Lib/site-packages/PyQt4"
+                "C:/Program Files (x86)/Intel/iCLS Client"
+                "C:/Program Files/Intel/iCLS Client"
+                "C:/Program Files/Intel/Intel(R) Management Engine Components/DAL"
+                "C:/Program Files/Intel/Intel(R) Management Engine Components/IPT"
+                "C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/DAL"
+                "C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/IPT"
+                "C:/Python27"
+                "C:/Python27/DLLs"
+                "C:/Python27/Scripts"
+                "C:/Python27/Lib/site-packages/vtk"
+                "C:/Python27/Lib/site-packages/osgeo"
+                "C:/Program Files (x86)/pythonxy/SciTE-3.5.1-4"
+                "C:/Program Files (x86)/pythonxy/console"
+                "C:/Program Files (x86)/pythonxy/swig"
+                "C:/Program Files (x86)/pythonxy/gettext/bin"
+                "C:/Program Files/gnuplot/bin"
+                "C:/Program Files (x86)/Graphviz2.38/bin"
+                "C:/Program Files (x86)/Emacs-24.5/bin"
+                "C:/texlive/2015/bin/win32"
+                "C:/Program Files (x86)/IVI Foundation/VISA/WinNT/Bin"
+                "C:/Program Files/IVI Foundation/VISA/Win64/Bin"
+                "C:/Program Files (x86)/IVI Foundation/VISA/WinNT/Bin"
+                "C:/Program Files (x86)/WinSCP"
+                "C:/Program Files (x86)/gs/gs9.18/bin"
+                "C:/Program Files (x86)/JabRef"
+                "C:/Program Files/pstoedit"
+                "C:/Program Files (x86)/Meld"
+                "C:/_work/gradle-2.9/bin"
+                "C:/Program Files (x86)/IVI Foundation/IVI/bin"
+                "C:/Program Files/IVI Foundation/IVI/bin"
+                "C:/Program Files (x86)/Aspell/bin"
+                "C:/Program Files (x86)/Lua/5.1"
+                "C:/Program Files (x86)/Lua/5.1/clibs"
+                "C:/Program Files (x86)/Pandoc"
+                "C:/Program Files (x86)/Git/cmd"
+                "C:/Program Files (x86)/Git/mingw64/bin"
+                "C:/Program Files (x86)/Git/usr/bin"
+                "C:/Program Files (x86)/LTC/LTspiceIV"
+                "C:/Program Files/TortoiseGit/bin"
+                "C:/Python27"
+                ) )
+             )
+
+         (setenv "PATH" (mapconcat 'identity mypaths ";") )
+
+         (setq exec-path (append mypaths (list "." exec-directory)) )
+
+         ) )
+   #+END_SRC
+
 * Package Initialization
 ** Package Manager
    
@@ -201,6 +267,14 @@
         (setq user-mail-address "markussievers88@gmail.com") ; home
       (setq user-mail-address "markus.sievers@k-ai.at"))     ; work
   #+END_SRC
+
+  Because I like my time settings to be in English even if I am
+  working on a machine with different language settings is set the
+  =system-time-locale= variable:
+
+  #+BEGIN_SRC elisp
+    (setq system-time-locale "C")
+  #+END_SRC
   
 ** Tabs vs Spaces
 
@@ -240,10 +314,6 @@
         (horizontal-scroll-bar-mode -1))
       (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
   #+END_SRC
-
-** TODO Create List Display Settings
-   Most of the display settings will be stored in their own org files
-   and listed here.
 
 ** Mode Line
 
@@ -286,7 +356,7 @@
        :diminish auto-fill-mode)
    #+END_SRC
 
-* TODO Key Bindings
+* DOING Key Bindings
 ** Hydra Sequences
 
    I’m starting to appreciate the [[https://github.com/abo-abo/hydra][Hydra project]].
@@ -741,7 +811,7 @@
    #+END_SRC
 
 ** Auto Complete
-
+   
    Using [[http://company-mode.github.io/][company-mode]] for all my auto completion needs.
 
    Like [[https://github.com/vspinu/company-math][this idea]] of being able to easily insert math
@@ -841,7 +911,7 @@
        :init
        (add-hook 'prog-mode-hook 'flyspell-prog-mode)
 
-       (dolist (hook '(text-mode-hook org-mode-hook))
+       (dolist (hook '(text-mode-hook org-mode-hook latex-mode-hook))
          (add-hook hook (lambda () (flyspell-mode 1))))
 
        (dolist (hook '(change-log-mode-hook log-edit-mode-hook org-agenda-mode-hook))
@@ -892,13 +962,54 @@
 
   Add reftex support when within orgmode
   
-* TODO LaTeX
+* DOING LaTeX
 
-  For any kind of publication one should use LaTeX. You ask why? Well,
-  I don't think you deserve the answer.
+  # For any kind of publication one should use LaTeX. You ask why? Well,
+  # I don't think you deserve the answer. To make editing LaTeX source
+  # code easier I use the [[https://www.gnu.org/software/auctex/][aucTeX]] package.
 
-  Create an =emacs-latex.org= file that includes all my settings from my
-  previous =.emacs= file
+  # #+BEGIN_SRC elisp
+  #   (use-package auctex
+  #     :ensure t           ; Make sure it is installed
+  #     :pin gnu            ; Make sure we take the one from the gnu archive
+  #     :mode ("\\.tex\\'" . latex-mode)
+  #     :commands (latex-mode LaTeX-mode plain-tex-mode)
+  #     :bind ("<f9> m" . helm-insert-latex-math)
+  #     :init             ; Some functionality to be loaded befor auctex fires up
+  #       (progn
+  #         (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
+  #         (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
+  #         (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode)
+  #         (add-hook 'LaTeX-mode-hook #'turn-on-auto-fill)
+  #         (setq TeX-auto-save t
+  #               TeX-parse-self t
+  #               TeX-quote-after-quote nil
+  #               TeX-PDF-mode t)
+  #         (setq-default TeX-master nil))
+  #   )
+  # #+END_SRC
+  
+* RefTeX
+
+  # Throughout the years I have read quite a few papers.  I use
+  # [[http://www.jabref.org/][JabRef]] to organize all of my bibliography entries. To excess the
+  # entries from within emacs, especially when working on a paper with
+  # the auctex mode.
+
+  # #+BEGIN_SRC elisp
+  #   (use-package reftex
+  #     :ensure t            ; Although I think it is built in now?!
+  #     :commands turn-on-reftex
+  #     :init
+  #     (setq reftex-plug-into-AUCTeX t)
+  #     (when (eq system-type 'gnu/linux)
+  #       (setq reftex-default-bibliography '("~/Bibliography/library.bib")))
+  #     (when (eq system-type 'windows-nt)
+  #       (setq reftex-default-bibliography '("c:/_work/Bibliography/library.bib")))
+
+  #     (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
+  #   )
+  # #+END_SRC
   
 * Technical Artifacts
 

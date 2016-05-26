@@ -197,10 +197,25 @@ Linux, or other systems with a graphical front-end.
   #+END_SRC
 
   And the default startup goes to...night...unless I'm at work, and
-  then we'll take the bright shiny theme.
+  then we'll take the bright shiny theme. To check if I'm at work I
+  assume the it will be between 8 am. and 6 pm and define the
+  following function:
 
   #+BEGIN_SRC elisp
-    (if (equal "sieversm" user-login-name)
+    (defun ms/check-work-hours? ()
+      "Check if the current time is after 8 am. and before 8pm"
+      (interactive)
+      (when (and
+             (>= (string-to-number (format-time-string "%H")) 8.)
+             (< (string-to-number (format-time-string "%H")) 18.))
+          t))
+  #+END_SRC
+
+  Now I can check if I am logged in at work and if it is early in the
+  morning or evening when I would rather use the dark theme.
+  
+  #+BEGIN_SRC elisp
+    (if (and (equal "sieversm" user-login-name) (ms/check-work-hours?))
       (ms/change-theme 'color-theme-sanityinc-tomorrow-day
                        'org-src-color-blocks-light)
       (ms/change-theme 'color-theme-sanityinc-tomorrow-night
