@@ -65,62 +65,6 @@
    #+END_SRC
 
 * General Settings
-** My Directory Location
-
-   Normally, the =user-emacs-directory= stores everything in a
-   =.emacs.d= directory in the home directory, however, some Emacs
-   flavors (e.g. Aquamacs) overrides that, and since I now feel the
-   need to use these settings for both editors (sure feels like XEmacs
-   all over again).
-
-   Any way, I have a new global variable for that:
-
-   #+BEGIN_SRC elisp
-     (defconst ms/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
-
-     (defun ms/emacs-subdirectory (d) (expand-file-name d ms/emacs-directory)) 
-   #+END_SRC
-
-** Directory Structure
-
-   In case this is the first time running this on a computer, we need
-   to make sure the following directories have been created.
-
-   #+BEGIN_SRC elisp
-     (let* ((subdirs '("elisp" "backups" "snippets" "ac-dict"))
-            (fulldirs (mapcar (lambda (d) (ms/emacs-subdirectory d)) subdirs)))
-       (dolist (dir fulldirs)
-         (when (not (file-exists-p dir))
-           (message "Make directory: %s" dir)
-           (make-directory dir))))
-   #+END_SRC
-
-** Customization Section
-   
-   While I would rather program my configurations, sometimes the Emacs
-   menu system is "good enough", but I want it in its own file:
-
-   #+BEGIN_SRC elisp
-     (setq custom-file (expand-file-name "custom.el" ms/emacs-directory))
-     (when (file-exists-p custom-file)
-       (load custom-file))
-   #+END_SRC
-
-** Setting up the Load Path
-
-   Extra packages not available via the package manager go in my
-   personal stash at: =$HOME/.emacs.d/elisp=
-
-   #+BEGIN_SRC elisp
-     (add-to-list 'load-path (ms/emacs-subdirectory "elisp"))
-   #+END_SRC
-
-   Load up my special collection of enhancements to Emacs Lisp ([[file:emacs-support.org][emacs-support.org]]):
-
-   #+BEGIN_SRC elisp
-     (require 'cl)
-     (require 'init-support)
-   #+END_SRC
 
 ** Setting up the =$PATH= variable
 
@@ -186,6 +130,63 @@
          (setq exec-path (append mypaths (list "." exec-directory)) )
 
          ) )
+   #+END_SRC
+
+** My Directory Location
+
+   Normally, the =user-emacs-directory= stores everything in a
+   =.emacs.d= directory in the home directory, however, some Emacs
+   flavors (e.g. Aquamacs) overrides that, and since I now feel the
+   need to use these settings for both editors (sure feels like XEmacs
+   all over again).
+
+   Any way, I have a new global variable for that:
+
+   #+BEGIN_SRC elisp
+     (defconst ms/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+
+     (defun ms/emacs-subdirectory (d) (expand-file-name d ms/emacs-directory)) 
+   #+END_SRC
+
+** Directory Structure
+
+   In case this is the first time running this on a computer, we need
+   to make sure the following directories have been created.
+
+   #+BEGIN_SRC elisp
+     (let* ((subdirs '("elisp" "backups" "snippets" "ac-dict"))
+            (fulldirs (mapcar (lambda (d) (ms/emacs-subdirectory d)) subdirs)))
+       (dolist (dir fulldirs)
+         (when (not (file-exists-p dir))
+           (message "Make directory: %s" dir)
+           (make-directory dir))))
+   #+END_SRC
+
+** Customization Section
+   
+   While I would rather program my configurations, sometimes the Emacs
+   menu system is "good enough", but I want it in its own file:
+
+   #+BEGIN_SRC elisp
+     (setq custom-file (expand-file-name "custom.el" ms/emacs-directory))
+     (when (file-exists-p custom-file)
+       (load custom-file))
+   #+END_SRC
+
+** Setting up the Load Path
+
+   Extra packages not available via the package manager go in my
+   personal stash at: =$HOME/.emacs.d/elisp=
+
+   #+BEGIN_SRC elisp
+     (add-to-list 'load-path (ms/emacs-subdirectory "elisp"))
+   #+END_SRC
+
+   Load up my special collection of enhancements to Emacs Lisp ([[file:emacs-support.org][emacs-support.org]]):
+
+   #+BEGIN_SRC elisp
+     (require 'cl)
+     (require 'init-support)
    #+END_SRC
 
 * Package Initialization
@@ -962,72 +963,58 @@
 
   Add reftex support when within orgmode
   
-* DOING LaTeX
+* LaTeX
 
-  # For any kind of publication one should use LaTeX. You ask why? Well,
-  # I don't think you deserve the answer. To make editing LaTeX source
-  # code easier I use the [[https://www.gnu.org/software/auctex/][aucTeX]] package.
+  For any kind of publication one should use LaTeX. You ask why? Well,
+  I don't think you deserve the answer. To make editing LaTeX source
+  code easier I use the [[https://www.gnu.org/software/auctex/][aucTeX]] package.
 
-  # #+BEGIN_SRC elisp
-  #   (use-package auctex
-  #     :ensure t           ; Make sure it is installed
-  #     :pin gnu            ; Make sure we take the one from the gnu archive
-  #     :mode ("\\.tex\\'" . latex-mode)
-  #     :commands (latex-mode LaTeX-mode plain-tex-mode)
-  #     :bind ("<f9> m" . helm-insert-latex-math)
-  #     :init             ; Some functionality to be loaded befor auctex fires up
-  #       (progn
-  #         (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
-  #         (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
-  #         (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode)
-  #         (add-hook 'LaTeX-mode-hook #'turn-on-auto-fill)
-  #         (setq TeX-auto-save t
-  #               TeX-parse-self t
-  #               TeX-quote-after-quote nil
-  #               TeX-PDF-mode t)
-  #         (setq-default TeX-master nil))
-  #   )
-  # #+END_SRC
+  #+BEGIN_SRC elisp
+    (use-package auctex
+      :ensure t           ; Make sure it is installed
+      :pin gnu            ; Make sure we take the one from the gnu archive
+      :mode ("\\.tex\\'" . latex-mode)
+      :commands (latex-mode LaTeX-mode plain-tex-mode)
+      :bind ("<f9> m" . helm-insert-latex-math)
+      :init             ; Some functionality to be loaded befor auctex fires up
+        (progn
+          (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
+          (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
+          (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode)
+          (add-hook 'LaTeX-mode-hook #'turn-on-auto-fill)
+          (setq TeX-auto-save t
+                TeX-parse-self t
+                TeX-quote-after-quote nil
+                TeX-PDF-mode t)
+          (setq-default TeX-master nil))
+    )
+  #+END_SRC
   
 * RefTeX
 
-  # Throughout the years I have read quite a few papers.  I use
-  # [[http://www.jabref.org/][JabRef]] to organize all of my bibliography entries. To excess the
-  # entries from within emacs, especially when working on a paper with
-  # the auctex mode.
+  Throughout the years I have read quite a few papers.  I use
+  [[http://www.jabref.org/][JabRef]] to organize all of my bibliography entries. To excess the
+  entries from within emacs, especially when working on a paper with
+  the auctex mode.
 
-  # #+BEGIN_SRC elisp
-  #   (use-package reftex
-  #     :ensure t            ; Although I think it is built in now?!
-  #     :commands turn-on-reftex
-  #     :init
-  #     (setq reftex-plug-into-AUCTeX t)
-  #     (when (eq system-type 'gnu/linux)
-  #       (setq reftex-default-bibliography '("~/Bibliography/library.bib")))
-  #     (when (eq system-type 'windows-nt)
-  #       (setq reftex-default-bibliography '("c:/_work/Bibliography/library.bib")))
+  #+BEGIN_SRC elisp
+    (use-package reftex
+      :ensure t            ; Although I think it is built in now?!
+      :commands turn-on-reftex
+      :init
+      (setq reftex-plug-into-AUCTeX t)
+      (when (eq system-type 'gnu/linux)
+        (setq reftex-default-bibliography '("~/Bibliography/library.bib")))
+      (when (eq system-type 'windows-nt)
+        (setq reftex-default-bibliography '("c:/_work/Bibliography/library.bib")))
 
-  #     (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
-  #   )
-  # #+END_SRC
+      (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
+    )
+  #+END_SRC
   
 * Technical Artifacts
 
-** Setting up the Exec Path
-
-   Make sure that =PATH= variable for finding binary files can is the
-   same as what Emacs will look for binary files. This little magic,
-   starts up a shell, gets its path, and then uses that for the
-   =exec-path=:
-
-   #+BEGIN_SRC elisp
-     (when window-system
-       (let ((path-from-shell (shell-command-to-string "/bin/bash -l -c 'echo $PATH'")))
-         (setenv "PATH" path-from-shell)
-         (setq exec-path (split-string path-from-shell path-separator))))
-   #+END_SRC
-
-** TODO Configure the Graphical Settings
+** Configure the Graphical Settings
 
    If we are running in a windowed environment where we can set up
    fonts and whatnot, call the 'mac' stuff... which will still work
