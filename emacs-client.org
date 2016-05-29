@@ -255,6 +255,16 @@ Linux, or other systems with a graphical front-end.
 
 * Frame and Window Size
 
+  To reverse my window configuration there is the winner-mode. To
+  enable it I use the following:
+
+  #+BEGIN_SRC elisp
+    (use-package 
+      :ensure t
+      :init
+      (winner-mode 1))
+  #+END_SRC
+  
   I often want to put the window fullscreen:
 
   #+BEGIN_SRC elisp

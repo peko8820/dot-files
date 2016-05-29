@@ -1106,7 +1106,7 @@
              (list "g" "german")))
    #+END_SRC
 
-* TODO Org-Mode
+* DOING Org-Mode
 
   See [[file:emacs-org.org][emacs-org-mode.el]] for details on my [[http://www.orgmode][Org-Mode]] settings.
 
@@ -1175,6 +1175,11 @@
 
    I like having Magit to run in a /full screen/ mode, and add the
    above =defadvice= idea from [[https://github.com/magnars/.emacs.d/blob/master/setup-magit.el][Sven Magnars]].
+
+
+  Add reftex support when within orgmode. Check out this [[http://blog.modelworks.ch/?p=379][blog]] as well
+  as this [[https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/][blog]].
+  
 
 * LaTeX
 
