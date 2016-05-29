@@ -52,7 +52,7 @@ Linux, or other systems with a graphical front-end.
   font based on the monospace du jour... While I [[http://mplus-fonts.sourceforge.jp/mplus-outline-fonts/download/index.html][M+]] because it is
   thinner and has more white space between lines, but [[http://blogs.adobe.com/typblography/2012/09/source-code-pro.html][Source Code Pro]]
   is so attractive, oh, and then there is Anonymous Pro...
-  
+
   #+BEGIN_SRC elisp
     (defvar ms/fixed-font-family
       (cond ((x-list-fonts "Source Code Pro") "Source Code Pro")
@@ -74,7 +74,7 @@ Linux, or other systems with a graphical front-end.
     cp source-code-pro-2.010R-ro-1.030R-it/OTF/*.otf ~/.fonts/
     fc-cache -f -v
   #+END_SRC
-  
+
   With the font name situated, I just need to use that to set the
   three magic frame settings:
 
@@ -213,7 +213,7 @@ Linux, or other systems with a graphical front-end.
 
   Now I can check if I am logged in at work and if it is early in the
   morning or evening when I would rather use the dark theme.
-  
+
   #+BEGIN_SRC elisp
     (if (and (equal "sieversm" user-login-name) (ms/check-work-hours?))
       (ms/change-theme 'color-theme-sanityinc-tomorrow-day
@@ -259,12 +259,9 @@ Linux, or other systems with a graphical front-end.
   enable it I use the following:
 
   #+BEGIN_SRC elisp
-    (use-package 
-      :ensure t
-      :init
-      (winner-mode 1))
+    (winner-mode 1)
   #+END_SRC
-  
+
   I often want to put the window fullscreen:
 
   #+BEGIN_SRC elisp
@@ -308,7 +305,7 @@ Linux, or other systems with a graphical front-end.
   #+END_SRC
 
   Notice "Windows" is not listed. That is by design. At least for
-  now. 
+  now.
 
   Make sure that we can simply =require= this library.
 

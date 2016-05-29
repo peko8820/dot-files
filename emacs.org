@@ -1180,7 +1180,6 @@
   Add reftex support when within orgmode. Check out this [[http://blog.modelworks.ch/?p=379][blog]] as well
   as this [[https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/][blog]].
   
-
 * LaTeX
 
   For any kind of publication one should use LaTeX. You ask why? Well,
