@@ -23,6 +23,7 @@ and tinkering with my configurations.
             org-src-fontify-natively t   ;; Pretty code blocks
             org-src-tab-acts-natively t
             org-confirm-babel-evaluate nil
+            org-export-with-sub-superscripts '{}
             org-todo-keywords '((sequence "TODO(t)" "DOING(g)" "|" "DONE(d)")
                                 (sequence "|" "CANCELED(c)")))
       (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
@@ -81,7 +82,7 @@ and tinkering with my configurations.
   #+END_SRC
 
 * Local Key Bindings
-  
+
   A couple of short-cut keys to make it easier to edit text.
 
   #+BEGIN_SRC elisp
@@ -392,4 +393,3 @@ and tinkering with my configurations.
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
-  

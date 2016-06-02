@@ -814,113 +814,6 @@
      (add-hook 'focus-out-hook 'save-all)
    #+END_SRC
 
-* Miscellaneous
-** Line Numbers
-
-   There are two line number features I like to use. First the
-   regurlar linum package and second the relative linum package that
-   allows me to jump to e.g. the 9th previous line with =C-9 C-p=.
-
-   #+BEGIN_SRC elisp
-     (add-hook 'prog-mode-hook 'linum-mode)
-   #+END_SRC
-
-   If we make the line numbers a fixed size, then increasing or
-   decreasing the font size doesn't truncate the numbers:
-
-   #+BEGIN_SRC elisp
-     (defun fix-linum-size ()
-       (interactive)
-       (set-face-attribute 'linum nil :height 110))
-
-     (add-hook 'linum-mode-hook 'fix-linum-size)
-   #+END_SRC
-
-   If we alternate between line numbers and no-line numbers, I also
-   have to turn on/off the fringe. Actually, this is really only
-   useful when giving presentations.
-
-   #+BEGIN_SRC elisp
-     (defun linum-off-mode ()
-       "Toggles the line numbers as well as the fringe. This allows me
-     to maximize the screen estate."
-       (interactive)
-       (if linum-mode
-           (progn
-             ;;(fringe-mode '(0 . 0))
-             (linum-mode -1))
-         ;;(fringe-mode '(8 . 0))
-         (linum-mode 1)))
-
-      ;;(global-set-key (kbd "<f9> d") 'linum-off-mode)
-   #+END_SRC
-
-   I'm intrigued with the [[https://github.com/coldnew/linum-relative][linum-relative]] mode (especially since I can
-   toggle between them). The idea is that I can see the line that I
-   want to jump to (like one 9 lines away), and then =C-9 C-n= to
-   quickly pop to it. To combine linum
-
-   #+BEGIN_SRC elisp
-     (use-package linum-relative
-       :ensure t
-       :config
-       ;; Otherwise, let's take advantage of the relative line numbering:
-       (defun linum-new-mode ()
-         "If line numbers aren't displayed, then display them.
-          Otherwise, toggle between absolute and relative numbers."
-         (interactive)
-         (if linum-mode
-             (linum-relative-toggle)
-           (linum-mode 1)))
-       )
-   #+END_SRC
-
-   To combine the functions above and access the with one keyboard
-   sequence I use the following:
-
-   #+BEGIN_SRC elisp
-     (define-sequence 'linum-select-map "<f9> l" 'funcall
-            (list (list "l" 'linum-new-mode)
-                  (list "o" 'linum-off-mode)))
-   #+END_SRC
-
-** Smart Comments
-
-   The [[https://github.com/paldepind/smart-comment][smart-comment]] project has the nice feature of commenting a line
-   without being at the beginning of the line (default comment in the
-   middle of the line is to split it).
-
-   #+BEGIN_SRC elisp
-     (use-package smart-comment
-       :ensure t
-       :bind ("M-;" . smart-comment))
-   #+END_SRC
-
-   Also has the ability (with the =C-u= prefix) to mark comments as
-   things to be deleted.
-
-** Strip Whitespace on Save
-
-   When I save, I want to always, and I do mean always strip all
-   trailing whitespace from the file.
-
-   #+BEGIN_SRC elisp
-     (add-hook 'before-save-hook 'delete-trailing-whitespace)
-   #+END_SRC
-
-** Hungry Delete
-
-   The Hungry Delete project is a [[http://endlessparentheses.com//hungry-delete-mode.html][free feature]], where deleting any
-   space, deletes ALL spaces.
-
-   This is already built into Emacs with the following:
-   - =M-\= :: Removes all spaces
-   - =M-SPC= :: Removes extra spaces, leaving just one
-   - =M-^= :: Joins current line with previous line (doesn't matter
-        where the point is on the line)
-   - =M-- M-1 M-SPC= :: Joins next line to this one (if point at end
-        of line) separated by a space ... quite the chording, eh?
-
 * Word Smithing
 ** Auto Insertion
 
@@ -1106,6 +999,212 @@
              (list "g" "german")))
    #+END_SRC
 
+* Miscellaneous
+** Line Numbers
+
+   There are two line number features I like to use. First the
+   regurlar linum package and second the relative linum package that
+   allows me to jump to e.g. the 9th previous line with =C-9 C-p=.
+
+   #+BEGIN_SRC elisp
+     (add-hook 'prog-mode-hook 'linum-mode)
+   #+END_SRC
+
+   If we make the line numbers a fixed size, then increasing or
+   decreasing the font size doesn't truncate the numbers:
+
+   #+BEGIN_SRC elisp
+     (defun fix-linum-size ()
+       (interactive)
+       (set-face-attribute 'linum nil :height 110))
+
+     (add-hook 'linum-mode-hook 'fix-linum-size)
+   #+END_SRC
+
+   If we alternate between line numbers and no-line numbers, I also
+   have to turn on/off the fringe. Actually, this is really only
+   useful when giving presentations.
+
+   #+BEGIN_SRC elisp
+     (defun linum-off-mode ()
+       "Toggles the line numbers as well as the fringe. This allows me
+     to maximize the screen estate."
+       (interactive)
+       (if linum-mode
+           (progn
+             ;;(fringe-mode '(0 . 0))
+             (linum-mode -1))
+         ;;(fringe-mode '(8 . 0))
+         (linum-mode 1)))
+
+      ;;(global-set-key (kbd "<f9> d") 'linum-off-mode)
+   #+END_SRC
+
+   I'm intrigued with the [[https://github.com/coldnew/linum-relative][linum-relative]] mode (especially since I can
+   toggle between them). The idea is that I can see the line that I
+   want to jump to (like one 9 lines away), and then =C-9 C-n= to
+   quickly pop to it. To combine linum
+
+   #+BEGIN_SRC elisp
+     (use-package linum-relative
+       :ensure t
+       :config
+       ;; Otherwise, let's take advantage of the relative line numbering:
+       (defun linum-new-mode ()
+         "If line numbers aren't displayed, then display them.
+          Otherwise, toggle between absolute and relative numbers."
+         (interactive)
+         (if linum-mode
+             (linum-relative-toggle)
+           (linum-mode 1)))
+       )
+   #+END_SRC
+
+   To combine the functions above and access the with one keyboard
+   sequence I use the following:
+
+   #+BEGIN_SRC elisp
+     (define-sequence 'linum-select-map "<f9> l" 'funcall
+            (list (list "l" 'linum-new-mode)
+                  (list "o" 'linum-off-mode)))
+   #+END_SRC
+
+** Smart Comments
+
+   The [[https://github.com/paldepind/smart-comment][smart-comment]] project has the nice feature of commenting a line
+   without being at the beginning of the line (default comment in the
+   middle of the line is to split it).
+
+   #+BEGIN_SRC elisp
+     (use-package smart-comment
+       :ensure t
+       :bind ("M-;" . smart-comment))
+   #+END_SRC
+
+   Also has the ability (with the =C-u= prefix) to mark comments as
+   things to be deleted.
+
+** Strip Whitespace on Save
+
+   When I save, I want to always, and I do mean always strip all
+   trailing whitespace from the file.
+
+   #+BEGIN_SRC elisp
+     (add-hook 'before-save-hook 'delete-trailing-whitespace)
+   #+END_SRC
+
+** Hungry Delete
+
+   The Hungry Delete project is a [[http://endlessparentheses.com//hungry-delete-mode.html][free feature]], where deleting any
+   space, deletes ALL spaces.
+
+   This is already built into Emacs with the following:
+   - =M-\= :: Removes all spaces
+   - =M-SPC= :: Removes extra spaces, leaving just one
+   - =M-^= :: Joins current line with previous line (doesn't matter
+        where the point is on the line)
+   - =M-- M-1 M-SPC= :: Joins next line to this one (if point at end
+        of line) separated by a space ... quite the chording, eh?
+
+* TODO Programming Languages
+
+** General Language Support
+
+   Many programming language environments can benefit from this section.
+
+*** ElDoc
+
+    I like ElDoc support (when I can get it), but not needed in the
+    mode line:
+
+    #+BEGIN_SRC elisp
+      (use-package eldoc
+        :diminish eldoc-mode)
+    #+END_SRC
+
+*** Code Block Folding
+
+    The [[info:emacs#Hideshow][Hide Show Minor]] mode allows us to /fold/ all functions
+    (hidden), showing only the header lines. We need to turn on the
+    mode, so wrappers are in order:
+
+    #+BEGIN_SRC elisp
+      (defun ms/hs-show-all ()
+        (interactive)
+        (hs-minor-mode 1)
+        (hs-show-all))
+
+      (defun ms/hs-hide-all ()
+        (interactive)
+        (hs-minor-mode 1)
+        (hs-hide-all))
+
+      (defun ms/hs-toggle-hiding ()
+        (interactive)
+        (hs-minor-mode 1)
+        (hs-toggle-hiding))
+    #+END_SRC
+
+    Seems that =C-c @= is too obnoxious to use, so I'll put my
+    favorite on the =C-c h= prefix:
+
+    #+BEGIN_SRC elisp
+      (use-package hs-minor-mode
+        :bind
+        ("C-c T h" . hs-minor-mode)
+        ("C-c h a" . ms/hs-hide-all)
+        ("C-c h s" . ms/hs-show-all)
+        ("C-c h h" . ms/hs-toggle-hiding))
+    #+END_SRC
+
+    See the [[http://www.emacswiki.org/emacs/HideShow][online resources]].
+
+*** Aggressive Auto Indention
+
+    Automatically indent without use of the tab found in [[http://endlessparentheses.com/permanent-auto-indentation.html][this article]],
+    and seems to be quite helpful for many types of programming
+    languages.
+
+    To begin, we create a function that can indent a function by
+    calling =indent-region= on the beginning and ending points of a
+    function.
+
+    #+BEGIN_SRC elisp
+      (defun indent-defun ()
+        "Indent current defun.
+      Do nothing if mark is active (to avoid deactivaing it), or if
+      buffer is not modified (to avoid creating accidental
+      modifications)."
+        (interactive)
+        (unless (or (region-active-p)
+                    buffer-read-only
+                    (null (buffer-modified-p)))
+          (let ((l (save-excursion (beginning-of-defun 1) (point)))
+                (r (save-excursion (end-of-defun 1) (point))))
+            (cl-letf (((symbol-function 'message) #'ignore))
+              (indent-region l r)))))
+    #+END_SRC
+
+    Next, create a hook that will call the =indent-defun= with every
+    command call:
+
+    #+BEGIN_SRC elisp
+      (defun activate-aggressive-indent ()
+        "Locally add `ha/indent-defun' to `post-command-hook'."
+        (add-hook 'post-command-hook
+                  'indent-defun nil 'local))
+    #+END_SRC
+
+
+** Python
+
+   See [[file:emacs-python.org][emacs-python.el]] for details on working with Python.
+   Not sure if I should just load it directly, like:
+
+   #+BEGIN_SRC elisp
+     (require 'init-python)
+   #+END_SRC
+
 * DOING Org-Mode
 
   See [[file:emacs-org.org][emacs-org-mode.el]] for details on my [[http://www.orgmode][Org-Mode]] settings.
@@ -1174,60 +1273,71 @@
    #+END_SRC
 
    I like having Magit to run in a /full screen/ mode, and add the
-   above =defadvice= idea from [[https://github.com/magnars/.emacs.d/blob/master/setup-magit.el][Sven Magnars]].
+   above =defadvice= idea from [[https://github.com/magnars/.emacs.d/blob/master/setup-magit.el][Sven Magnars]]. For a cheat-sheet of the
+   multitude of available Magit commands check out this website from
+   [[http://daemianmack.com/magit-cheatsheet.html][Damian Mack]].
 
+   Add reftex support when within orgmode. Check out this [[http://blog.modelworks.ch/?p=379][blog]] as well
+   as this [[https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/][blog]].
 
-  Add reftex support when within orgmode. Check out this [[http://blog.modelworks.ch/?p=379][blog]] as well
-  as this [[https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/][blog]].
-  
-* LaTeX
+** LaTeX
 
-  For any kind of publication one should use LaTeX. You ask why? Well,
-  I don't think you deserve the answer. To make editing LaTeX source
-  code easier I use the [[https://www.gnu.org/software/auctex/][aucTeX]] package.
+   For any kind of publication one should use LaTeX. You ask why? Well,
+   I don't think you deserve the answer. To make editing LaTeX source
+   code easier I use the [[https://www.gnu.org/software/auctex/][aucTeX]] package.
 
-  #+BEGIN_SRC elisp
-    (use-package auctex
-      :ensure t           ; Make sure it is installed
-      :pin gnu            ; Make sure we take the one from the gnu archive
-      :mode ("\\.tex\\'" . latex-mode)
-      :commands (latex-mode LaTeX-mode plain-tex-mode)
-      :bind ("<f9> m" . helm-insert-latex-math)
-      :init             ; Some functionality to be loaded befor auctex fires up
-        (progn
-          (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
-          (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
-          (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode)
-          (add-hook 'LaTeX-mode-hook #'turn-on-auto-fill)
-          (setq TeX-auto-save t
-                TeX-parse-self t
-                TeX-quote-after-quote nil
-                TeX-PDF-mode t)
-          (setq-default TeX-master nil))
-    )
-  #+END_SRC
+   #+BEGIN_SRC elisp
+     (use-package auctex
+       :ensure t           ; Make sure it is installed
+       :pin gnu            ; Make sure we take the one from the gnu archive
+       :mode ("\\.tex\\'" . latex-mode)
+       :commands (latex-mode LaTeX-mode plain-tex-mode)
+       :bind ("<f9> m" . helm-insert-latex-math)
+       :init             ; Some functionality to be loaded befor auctex fires up
+         (progn
+           (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
+           (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
+           (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode)
+           (add-hook 'LaTeX-mode-hook #'turn-on-auto-fill)
+           (setq TeX-auto-save t
+                 TeX-parse-self t
+                 TeX-quote-after-quote nil
+                 TeX-PDF-mode t)
+           (setq-default TeX-master nil))
+     )
+   #+END_SRC
 
-* RefTeX
+** RefTeX
 
-  Throughout the years I have read quite a few papers.  I use
-  [[http://www.jabref.org/][JabRef]] to organize all of my bibliography entries. To excess the
-  entries from within emacs, especially when working on a paper with
-  the auctex mode.
+   Throughout the years I have read quite a few papers.  I use
+   [[http://www.jabref.org/][JabRef]] to organize all of my bibliography entries. To excess the
+   entries from within emacs, especially when working on a paper with
+   the auctex mode.
 
-  #+BEGIN_SRC elisp
-    (use-package reftex
-      :ensure t            ; Although I think it is built in now?!
-      :commands turn-on-reftex
-      :init
-      (setq reftex-plug-into-AUCTeX t)
-      (when (eq system-type 'gnu/linux)
-        (setq reftex-default-bibliography '("~/Bibliography/library.bib")))
-      (when (eq system-type 'windows-nt)
-        (setq reftex-default-bibliography '("c:/_work/Bibliography/library.bib")))
+   #+BEGIN_SRC elisp
+     (use-package reftex
+       :ensure t            ; Although I think it is built in now?!
+       :commands turn-on-reftex
+       :init
+       (setq reftex-plug-into-AUCTeX t)
+       (when (eq system-type 'gnu/linux)
+         (setq reftex-default-bibliography '("~/Bibliography/library.bib")))
+       (when (eq system-type 'windows-nt)
+         (setq reftex-default-bibliography '("c:/_work/Bibliography/library.bib")))
 
-      (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
-    )
-  #+END_SRC
+       (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
+     )
+   #+END_SRC
+
+* Applications
+** TODO Web Browsing
+** TODO EShell
+
+   See [[file:emacs-eshell.org][emacs-eshell.el]] for details of configuring and using EShell.
+
+   #+BEGIN_SRC elisp
+     (require 'init-eshell)
+   #+END_SRC
 
 * Technical Artifacts
 

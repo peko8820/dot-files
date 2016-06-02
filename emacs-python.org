@@ -1,0 +1,136 @@
+#+TITLE:  Emacs Settings for Python
+#+AUTHOR: Markus Sievers
+#+EMAIL:  markussievers88@gmail.com
+#+DATE:   [2016-06-02 Thu]
+#+TAGS:   emacs python
+
+I stole most of it from [[https://github.com/howardabrams/dot-files][Howard Abrams' dot-files]]. He said he stole his
+Python package ideas from [[https://github.com/gabrielelanaro/emacs-for-python][Gabriel Elanaro's git project]]. As of right
+now I will give the Jedi implementation a try...
+
+* TODO Virtual Environments
+
+  Virtual environments nicely solve the issue when you write a python
+  program and make use of a certain module. If you then upgrade the
+  included module your program may not work anymore. Virtual
+  environments makes a local copy of all necessary python libraries
+  preventing you from running into that problem.
+
+  Because for now I am more interested in small code snippets that do
+  very dedicated stuff I will leave this item as TODO for later.
+
+* Basics
+
+  WSGI files are just Python files in disguise, so tell them to use
+  the Python environment.   Careful with the tabs, my friend.
+
+  #+BEGIN_SRC elisp
+    (use-package python
+      :mode ("\\.py\\'" . python-mode)
+            ("\\.wsgi$" . python-mode)
+      :interpreter ("python" . python-mode)
+
+      :init
+      (setq-default indent-tabs-mode nil)
+
+      :config
+      (setq python-indent 4)
+      (add-hook 'python-mode-hook 'color-identifiers-mode))
+  #+END_SRC
+
+* Lint
+* Nose
+
+  Unit test and code coverage tool for Python now comes to Emacs
+  with [[http://ivory.idyll.org/articles/nose-intro.html][Python Nose]].
+
+  #+BEGIN_SRC sh
+    pip install nose
+  #+END_SRC
+
+  The ELPY project automatically adds support [[http://elpy.readthedocs.org/en/latest/ide.html#testing][for testing]].
+
+* Jedi
+
+  Auto-completion system for Python. This code hooks Jedi into the
+  standard Python mode. See [[http://tkf.github.io/emacs-jedi/][these instructions]] for details (but this
+  should have been installed for Elpy).
+
+  #+BEGIN_SRC sh
+    pip install jedi
+  #+END_SRC
+
+* ELPY
+
+  According to the [[https://github.com/jorgenschaefer/elpy/wiki][ELPY Web Site]], we first install the python-based
+  package components:
+
+  #+BEGIN_SRC sh
+    # and importmagic for automatic imports
+    pip install importmagic
+    pip install elpy
+  #+END_SRC
+
+  Once this has been installed, we can enable it:
+
+  #+BEGIN_SRC elisp
+    (use-package elpy
+      :ensure t
+      :commands elpy-enable
+      :init (with-eval-after-load 'python (elpy-enable))
+
+      :config
+      (electric-indent-local-mode -1)
+      (delete 'elpy-module-highlight-indentation elpy-modules)
+      (delete 'elpy-module-flymake elpy-modules)
+
+      (defun ms/elpy-goto-definition ()
+        (interactive)
+        (condition-case err
+          (elpy-goto-definition)
+          ('error (find-tag (symbol-name (symbol-at-point))))))
+
+      :bind (:map elpy-mode-map ([remap elpy-goto-definition] . ms/elpy-goto-definition)))
+  #+END_SRC
+
+  Since ELPY is not a simple mode, but a collection of smaller modes
+  stitched together, we have to call ~with-eval-after-load~ (see [[http://emacs.stackexchange.com/questions/10065/how-can-i-defer-loading-elpy-using-use-package][this discussion]])
+
+  See [[http://elpy.readthedocs.org/en/latest/ide.html][the documentation]] for details, but:
+  - =C-c C-f= :: Find Python file
+  - =C-c C-s= :: Grep for a Python symbol
+  - =C-c C-z= :: Switch to the Python Shell
+  - =C-c C-c= :: Send region to the Python interpreter
+
+  Note: The elpy-goto-definition is nice and all if you have a full
+  project with a running interpreter, but I want to use tags as a
+  fallback.  However, since the function throws an error, I can't
+  simply /advice/ the function, like:
+
+  #+BEGIN_SRC elisp :tangle no
+    (advice-add 'elpy-goto-definition :after-until 'find-tag)
+  #+END_SRC
+
+  Instead, I had to create a function wrapper.
+
+* Technical Artifacts
+
+  Make sure that we can simply =require= this library.
+
+  #+BEGIN_SRC elisp
+    (provide 'init-python)
+  #+END_SRC
+
+  Before you can build this on a new system, make sure that you put
+  the cursor over any of these properties, and hit: =C-c C-c=
+
+#+DESCRIPTION: A literate programming version of my Emacs Initialization of Python
+#+PROPERTY:    results silent
+#+PROPERTY:    tangle ~/.emacs.d/elisp/init-python.el
+#+PROPERTY:    header-args:sh  :tangle no
+#+PROPERTY:    header-args:python  :tangle no
+#+PROPERTY:    eval no-export
+#+PROPERTY:    comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
