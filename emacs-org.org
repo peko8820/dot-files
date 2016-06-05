@@ -283,8 +283,8 @@ and tinkering with my configurations.
   Google Task list are stored in [[file:~/personal/tasks.org][tasks.org]]:
 
   #+BEGIN_SRC elisp
-     (defvar org-default-notes-file "~/personal/@SUMMARY.org")
-     (defvar org-default-tasks-file "~/personal/tasks.org")
+     (setq org-default-notes-file "~/personal/notes.org")
+     (setq org-default-tasks-file "~/personal/tasks.org")
   #+END_SRC
 
   This will bring up a list of /note capturing templates/. I actually
@@ -305,7 +305,7 @@ and tinkering with my configurations.
              (file (get-journal-file-today))
              "* %?\n\n  %i\n\n  From: %a" :empty-lines 1)
             ("t" "Task Entry"        entry
-             (file+function org-default-tasks-file ms/first-header)
+             (file org-default-tasks-file)
              "* %?\n\n  %i\n\n  From: %a" :empty-lines 1)))
   #+END_SRC
 

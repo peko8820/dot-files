@@ -1316,18 +1316,82 @@
 
    #+BEGIN_SRC elisp
      (use-package reftex
-       :ensure t            ; Although I think it is built in now?!
        :commands turn-on-reftex
        :init
        (setq reftex-plug-into-AUCTeX t)
        (when (eq system-type 'gnu/linux)
          (setq reftex-default-bibliography '("~/Bibliography/library.bib")))
        (when (eq system-type 'windows-nt)
-         (setq reftex-default-bibliography '("c:/_work/Bibliography/library.bib")))
+         (setq reftex-default-bibliography
+               '("c:/_work/Bibliography/library.bib")))
 
-       (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
-     )
+       (setq reftex-bibliography-commands
+             '("bibliography" "nobibliography" "addbibresource")) )
    #+END_SRC
+
+   Every once in awhile I like to include citations in my orgmode
+   files. To use the power of reftex I need to make a few
+   modifications. The idea and part of the documentation are stolen
+   from [[https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/][here]] and [[http://blog.modelworks.ch/?p=379][here]].
+
+   #+BEGIN_SRC elisp
+     (defun org-mode-reftex-setup ()
+       (load-library "reftex")
+       (and (buffer-file-name) (file-exists-p (buffer-file-name))
+            (progn
+              ;enable auto-revert-mode to update reftex when bibtex file changes on disk
+              (global-auto-revert-mode t)
+              (reftex-parse-all)
+              ;add a custom reftex cite format to insert links
+              (reftex-set-cite-format
+               '((?b . "[[bib:%l][%l-bib]]")
+                 (?p . "[[papers:%l][%l-paper]]")
+                 (?t . "%t")
+                 (?h . "** %t\n:PROPERTIES:\n:Custom_ID: %l\n:END:\n[[papers:%l][%l-paper]]")))))
+       (define-key org-mode-map (kbd "C-c )") 'reftex-citation))
+
+     (add-hook 'org-mode-hook 'org-mode-reftex-setup)
+   #+END_SRC
+
+   Lastly, org-mode needs a few things to pull all this together. The
+   first and most important is importing the bibtex file. RefTeX looks
+   for a LaTeX \bibliography tag anywhere in the file or uses the
+   default bibliography I specified when initializing the RefTeX
+   package. To specify a bibliography specifically for the current
+   file I add the =\bibliography{}= command as an org-mode comment at
+   the beginning of the file:
+
+   #+BEGIN_EXAMPLE
+     # \bibliography{~/Bibliography/library.bib}
+   #+END_EXAMPLE
+
+   The other thing needed are link abbreviations. While you could
+   hardcode this into your citation formats, I prefer to put
+   abbreviations in for the citation formats.
+
+   #+BEGIN_SRC elisp
+     (setq org-link-abbrev-alist
+           '(("bib" . "~/Bibliography/library.bib::%s")
+             ("datasheet" . "~/Datasheets/::%s.pdf")
+             ("notes" . "~/research/org/notes.org::#%s")
+             ("papers" . "~/Bibliography/documents/%s.pdf")))
+   #+END_SRC
+
+   These can be easily overridden in an org-mode file, which I
+   actually do for the org-mode file I store the actual entries in. If
+   I left it as is, following a “notes” link in this org-mode file
+   would open the same file in a new window and jump to the entry in
+   that one. Not quite what we want. This is where I override it in
+   the local file by adding this to my heading.
+
+   #+BEGIN_EXAMPLE
+     #+LINK: notes #%s
+   #+END_EXAMPLE
+
+   Now, if I follow a “notes” link in the entries file, it jumps to
+   that entry in the same frame, while following a “notes” link in
+   another org-mode file (or using my new reftex search addition) will
+   open this file in a new frame and jump to the entry.
 
 * Applications
 ** TODO Web Browsing
