@@ -1334,7 +1334,7 @@
    modifications. The idea and part of the documentation are stolen
    from [[https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/][here]] and [[http://blog.modelworks.ch/?p=379][here]].
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC elisp :tangle no
      (defun org-mode-reftex-setup ()
        (load-library "reftex")
        (and (buffer-file-name) (file-exists-p (buffer-file-name))
@@ -1392,6 +1392,44 @@
    that entry in the same frame, while following a “notes” link in
    another org-mode file (or using my new reftex search addition) will
    open this file in a new frame and jump to the entry.
+
+** Org-Ref
+
+   I don't know if I should have put this into my [[file:emacs-org.org][org-mode init]]
+   file. For right now I keep it here since I configure RefTeX after I
+   configure org-mode. The configurations are taken from the [[https://github.com/jkitchin/org-ref][org-ref]]
+   git-hub repository.
+
+   #+BEGIN_SRC elisp
+     (use-package org-ref
+       :ensure t
+       :config
+       (setq org-ref-bibliography-notes "~/personal/bib_notes.org"
+             org-ref-default-bibliography '("~/Bibliography/library.bib")
+             org-ref-pdf-directory "~/Bibliography/documents/")
+
+       ;; For helm-bibtex citation completion
+       (setq bibtex-completion-bibliography "~/Bibliography/library.bib"
+           bibtex-completion-library-path "~/Bibliography/documents"
+           bibtex-completion-notes-path "~/Bibliography/helm-bibtex-notes")
+
+       ;; Depending on the operating system I am on I need to set different
+       ;; functions for opening PDF documents
+       (cond
+        ((eq system-type 'windows-nt)        ; Windows
+         (setq bibtex-completion-pdf-open-function
+               (lambda (fpath)
+                 (start-process "open" "*open*" "open" fpath))))
+        ((eq system-type 'gnu/linux)         ; Linux (Ubuntu in my case)
+         (setq bibtex-completion-pdf-open-function
+               (lambda (fpath)
+                 (start-process "open" "*open*" "evince" fpath))))
+        ((eq system-type 'darwin)            ; Mac OS X
+         (setq bibtex-completion-pdf-open-function
+               (lambda (fpath)
+                 (start-process "open" "*open*" "open" fpath)))))
+       )
+   #+END_SRC
 
 * Applications
 ** TODO Web Browsing
