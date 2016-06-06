@@ -66,6 +66,22 @@ and tinkering with my configurations.
   =org-speed-command-help= for details (or hit the ? key at a
   headline).
 
+  Because I frequently insert equations within my documentation I like
+  to use the all mighty power of latex. However, whenever I let
+  orgmode display the equations  for my they tend to be to small.
+  Therefore, I adjust the size a little bit:
+
+  #+BEGIN_SRC elisp
+    (setq org-format-latex-options
+          '(:foreground default
+                        :background default
+                        :scale 1.5
+                        :html-foreground "Black"
+                        :html-background "Transparent"
+                        :html-scale 1.0
+                        :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
+  #+END_SRC
+
   *Note*: For the most part, I like [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Indent-Convenience.html][electric-indent-mode]], however, it
   doesn't really play well with =org-mode=, so I just bind the Return
   key to the ~org-return-indent~ function and get the same effect (but
