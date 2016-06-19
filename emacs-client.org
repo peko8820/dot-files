@@ -9,6 +9,16 @@ have made a few modifications, which is why I added myself as the
 author. The settings in this file are only included on a Macintosh,
 Linux, or other systems with a graphical front-end.
 
+* General
+
+  Here are some of the default customizations that are only relevant
+  whenever I run emacs as a window based program. First I do not want
+  to see cursors in the buffers that I am not currently working.
+
+  #+BEGIN_SRC elisp
+    (setq-default cursor-in-non-selected-windows nil)
+  #+END_SRC
+
 * Key Bindings
 
   Gotta get rid of the bloody =C-x C-c=, for it is too close to the
@@ -56,9 +66,9 @@ Linux, or other systems with a graphical front-end.
   #+BEGIN_SRC elisp
     (defvar ms/fixed-font-family
       (cond ((x-list-fonts "Source Code Pro") "Source Code Pro")
-            ((x-list-fonts "Anonymous Pro")   "Anonymous Pro")
-            ((x-list-fonts "M+ 1mn")          "M+ 1mn"))
-      "My fixed width font based on what is installed, `nil' if not defined.")
+            ((x-list-fonts "DejaVu Sans Mono") "DejaVu Sans Mono")
+           ((x-list-fonts "Arial Unicode MS") "Arial Unicode MS")
+      "My fixed width font based on what is installed, `nil' if not defined."))
   #+END_SRC
 
   To download the Source Code Pro fonts onto my Ubuntu laptop I used
@@ -92,6 +102,7 @@ Linux, or other systems with a graphical front-end.
   #+BEGIN_SRC  elisp
     (defvar ms/variable-font-tuple
       (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+            ((x-list-fonts "DejaVu Sans") '(:font "DejaVu Sans"))
             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
             ((x-list-fonts "Verdana")         '(:font "Verdana"))
             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))

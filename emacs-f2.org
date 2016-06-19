@@ -45,7 +45,7 @@ phrases I want to type a bit too often.
   (define-key f2-global-map (kbd "E") "ε")
   (define-key f2-global-map (kbd "L") "λ")
   (define-key f2-global-map (kbd "P") "π")
-  (define-key f2-global-map (kbd "M") "μ")
+  (define-key f2-global-map (kbd "m") "μ")
   (define-key f2-global-map (kbd "T") "θ")
 #+END_SRC
 
@@ -158,7 +158,7 @@ phrases I want to type a bit too often.
   doesn’t immediately solve?
 
   #+BEGIN_SRC elisp
-    (define-key f2-global-map (kbd "H") "Howard Abrams")
+    (define-key f2-global-map (kbd "M") "Markus Sievers")
   #+END_SRC
 
 * Technical Artifacts

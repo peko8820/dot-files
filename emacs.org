@@ -66,6 +66,17 @@
 
 * General Settings
 
+** Setting the input format
+
+   This is a short but nonetheless import one. To use all of the
+   Unicode character richness I need to make sure to set some
+   defaults:
+
+   #+BEGIN_SRC elisp
+     (set-language-environment "UTF-8")
+     (set-default-coding-systems 'utf-8)
+   #+END_SRC
+
 ** Setting up the =$PATH= variable
 
    In case I use Emacs on a windows computer I need to take care that
@@ -100,7 +111,7 @@
                 "C:/Program Files/gnuplot/bin"
                 "C:/Program Files (x86)/Graphviz2.38/bin"
                 "C:/Program Files (x86)/Emacs-24.5/bin"
-                "C:/texlive/2015/bin/win32"
+                "C:/texlive/2016/bin/win32"
                 "C:/Program Files (x86)/IVI Foundation/VISA/WinNT/Bin"
                 "C:/Program Files/IVI Foundation/VISA/Win64/Bin"
                 "C:/Program Files (x86)/IVI Foundation/VISA/WinNT/Bin"
@@ -122,6 +133,7 @@
                 "C:/Program Files (x86)/LTC/LTspiceIV"
                 "C:/Program Files/TortoiseGit/bin"
                 "C:/Python27"
+                "C:/ProgramData/Oracle/Java/javapath/"
                 ) )
              )
 
@@ -286,6 +298,28 @@
    #+BEGIN_SRC elisp
      (use-package better-defaults
        :ensure t)
+   #+END_SRC
+
+   And now I will add a few default settings of my own. First, I like
+   when emacs asks me if I want to do something but /y/ oder /n/ is enough
+   as an answer!
+
+   #+BEGIN_SRC elisp
+     (defalias 'yes-or-no-p 'y-or-n-p)
+   #+END_SRC
+
+   Since I have been using emacs for a while now I don't need to see
+   the start up message anymore. I can always go to it with =C-h C-a=.
+
+   #+BEGIN_SRC elisp
+     (setq-default inhibit-startup-message t)
+   #+END_SRC
+
+   When scrolling I like to scroll the screen and not my eyes. Yeah,
+   yeah, I know there is =C-l=, but I don't want that...
+
+   #+BEGIN_SRC elisp
+     (setq-default scroll-preserve-screen-position 'keep)
    #+END_SRC
 
 ** Tabs vs Spaces
@@ -686,6 +720,39 @@
 
    #+BEGIN_SRC elisp
      (require 'dired-x)
+   #+END_SRC
+
+
+   When collaborating with my colleagues I like to send them the link
+   of a file of interest that is located on one of our network
+   drives. Especially when using Windows not everyone maps their
+   network drives to the same letter. Therefore, it is best to send
+   the links as *Internet Links*. This will send the absolute path and
+   takes care of any /whitespace/ incompatibilities.
+
+
+   #+BEGIN_SRC elisp
+     (use-package dired
+       :config
+       (defun ms/dired-copy-internet-path ()
+         "This function allows a link to a file to be copied from
+       within the dired mode as an internet path. This avoids common
+       issues (e.g. whitespaces in the dir/filename) that would
+       otherwise render the link useless.
+
+       Behavior: The current absolute path to the file is pushed onto
+       the kill ring with help of the 'dired-file-name-at-point'
+       function.  Next, within a temporary buffer the link is formated
+       by prepending 'file:' and replacing problematic characters such
+       as whitespaces."
+         (interactive)
+         (kill-new (dired-file-name-at-point))
+         (with-temp-buffer
+           (insert (current-kill 0))
+           (kill-new (concat "file:" (replace-regexp-in-string "\s" "\%20" (buffer-string)))))
+         (message "%s => clipboard"  (current-kill 0)))
+       (define-key dired-mode-map (kbd "W") 'ms/dired-copy-internet-path)
+       )
    #+END_SRC
 
 ** Tramp
@@ -1277,8 +1344,15 @@
    multitude of available Magit commands check out this website from
    [[http://daemianmack.com/magit-cheatsheet.html][Damian Mack]].
 
-   Add reftex support when within orgmode. Check out this [[http://blog.modelworks.ch/?p=379][blog]] as well
-   as this [[https://tincman.wordpress.com/2011/01/04/research-paper-management-with-emacs-org-mode-and-reftex/][blog]].
+   When at work we use gerrit for code review. Thanks to
+   the [[https://github.com/terranpro/magit-gerrit][magit-gerrit]] project I can use this as well.
+
+   #+BEGIN_SRC elisp
+     (use-package magit-gerrit
+       :ensure t
+       :config
+       (setq magit-gerrit-ssh-creds "sieversm@gerrit.intra.infineon.com"))
+   #+END_SRC
 
 ** LaTeX
 

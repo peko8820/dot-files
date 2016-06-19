@@ -24,7 +24,7 @@ and tinkering with my configurations.
             org-src-tab-acts-natively t
             org-confirm-babel-evaluate nil
             org-export-with-sub-superscripts '{}
-            org-todo-keywords '((sequence "TODO(t)" "DOING(g)" "|" "DONE(d)")
+            org-todo-keywords '((sequence "TODO(t)" "DOING(g)" "WAITING(w)" "|" "DONE(d)")
                                 (sequence "|" "CANCELED(c)")))
       (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
       (add-to-list 'auto-mode-alist '(".*/[0-9]*$" . org-mode))   ;; Journal entries
@@ -34,7 +34,7 @@ and tinkering with my configurations.
              ("C-c c" . org-capture)
              ("C-M-|" . indent-rigidly))
       :config
-      (unless (eq system-type 'windows-nt)
+      ;; (unless (eq system-type 'windows-nt)
         (font-lock-add-keywords            ; A bit silly but my headers are now
          'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
                       (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
@@ -42,12 +42,15 @@ and tinkering with my configurations.
                      ("^\\*+ \\(DOING\\) "
                       (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
                                 nil)))
+                     ("^\\*+ \\(WAITING\\) "
+                      (1 (progn (compose-region (match-beginning 1) (match-end 1) "?")
+                                nil)))
                      ("^\\*+ \\(CANCELED\\) "
                       (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
                                 nil)))
                      ("^\\*+ \\(DONE\\) "
                       (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
-                                nil))))))
+                                nil))))) ;;)
 
       (define-key org-mode-map (kbd "M-C-n") 'org-end-of-item-list)
       (define-key org-mode-map (kbd "M-C-p") 'org-beginning-of-item-list)
@@ -295,7 +298,7 @@ and tinkering with my configurations.
   working on. This is called a "capture", and is bound to the
   following key:
 
-  General notes are stored in [[file:~/personal/@SUMMARY.org][@SUMMARY.org]], and tasks synced with my
+  General notes are stored in [[file:~/personal/notes.org][notes.org]], and tasks synced with my
   Google Task list are stored in [[file:~/personal/tasks.org][tasks.org]]:
 
   #+BEGIN_SRC elisp
