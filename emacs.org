@@ -1336,6 +1336,8 @@
              ;; Get rid of the previous advice to go into fullscreen
              magit-restore-window-configuration t)
 
+       ;; Tell git to prompt me for my username/password when using the Open SSH protocol
+       (setenv "GIT_ASKPASS" "git-gui--askpass")
        :bind ("C-x g" . magit-status))
    #+END_SRC
 
