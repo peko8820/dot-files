@@ -100,6 +100,39 @@ and tinkering with my configurations.
       :ensure org-plus-contrib)
   #+END_SRC
 
+  For certain /TODO/ keywords I like to remove the /Scheduled/ and
+  /Deadline/ when the /TODO/ state is set to a /done/ state.  First I define
+  these keywords in a list:
+
+  #+BEGIN_SRC elisp
+    (defvar ms/org-done-keywords '("DONE" "CANCELED")
+      "List of keywords denoting completed state of a headline.")
+  #+END_SRC
+
+  Next, I create a functions that does the removing:
+
+  #+BEGIN_SRC elisp
+    (defun ms/org-remove-shedule-when-done ()
+      "Remove schedule when TODO state changes to done state."
+      (when (member (org-entry-get nil "TODO") ms/org-done-keywords)
+        (org-remove-timestamp-with-keyword org-scheduled-string)
+        (org-remove-timestamp-with-keyword org-deadline-string)))
+  #+END_SRC
+
+  And finally, I need to hook this function to the
+  *org-after-todo-state-change-hook* hook.
+
+  #+BEGIN_SRC elisp
+    (add-hook 'org-after-todo-state-change-hook 'ms/org-remove-shedule-when-done)
+  #+END_SRC
+
+  I also like to insert the *closed* keyword with a time-stamp when a
+  task is set to a done state.
+
+  #+BEGIN_SRC elisp
+    (setq org-log-done 'time)
+  #+END_SRC
+
 * Local Key Bindings
 
   A couple of short-cut keys to make it easier to edit text.
