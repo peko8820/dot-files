@@ -452,7 +452,7 @@
            (shrink-window arg)
          (enlarge-window arg)))
 
-     (defhydra hydra-splitter (global-map "<f9>")
+     (defhydra hydra-splitter (global-map "<f9> h")
        "splitter"
        ("<left>" hydra-move-splitter-left)
        ("<down>" hydra-move-splitter-down)
