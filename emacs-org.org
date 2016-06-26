@@ -30,7 +30,6 @@ and tinkering with my configurations.
       (add-to-list 'auto-mode-alist '(".*/[0-9]*$" . org-mode))   ;; Journal entries
       (add-hook 'org-mode-hook 'yas-minor-mode-on)
       :bind (("C-c l" . org-store-link)
-             ("C-c a" . org-agenda)
              ("C-c c" . org-capture)
              ("C-M-|" . indent-rigidly))
       :config
@@ -126,11 +125,45 @@ and tinkering with my configurations.
     (add-hook 'org-after-todo-state-change-hook 'ms/org-remove-shedule-when-done)
   #+END_SRC
 
-  I also like to insert the *closed* keyword with a time-stamp when a
-  task is set to a done state.
+  I also like to insert the *closed* keyword with a time-stamp and ask
+  for a closing note when a task is set to a done state.
 
   #+BEGIN_SRC elisp
-    (setq org-log-done 'time)
+    (setq org-log-done 'note)
+  #+END_SRC
+
+* Source Block Folding
+
+  Although there are built-in functions to hide/show all source blocks
+  I took the inspiration from [[http://emacs.stackexchange.com/questions/7211/collapse-src-blocks-in-org-mode-by-default][this]] blog post that wraps the hide/show
+  functionality inside a neat toggle function. But first I define a
+  variable that holds the current state of the toggle:
+
+  #+BEGIN_SRC elisp
+    (defvar org-blocks-hidden nil)
+  #+END_SRC
+
+  Next the function definition.
+
+  #+BEGIN_SRC elisp
+    (defun org-toggle-blocks ()
+      (interactive)
+      (if org-blocks-hidden
+          (org-show-block-all)
+        (org-hide-block-all))
+      (setq-local org-blocks-hidden (not org-blocks-hidden)))
+  #+END_SRC
+
+  Then we need to hook it to the org-mode:
+
+  #+BEGIN_SRC elisp
+    (add-hook 'org-mode-hook 'org-toggle-blocks)
+  #+END_SRC
+
+  And finally I bind the function to the =C-c t= keyboard sequence:
+
+  #+BEGIN_SRC elisp
+    (define-key org-mode-map (kbd "C-c t") 'org-toggle-blocks)
   #+END_SRC
 
 * Local Key Bindings
