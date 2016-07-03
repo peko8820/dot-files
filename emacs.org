@@ -1595,6 +1595,42 @@
 
    For right now I will stick with the emojify project especially
    because when turned on it will render emojis automatically.
+** Calendar Tweeks
+
+   I like the Emacs calendar but I would like to see the week numbers
+   as well. Especially when at work this is useful. I found [[http://stackoverflow.com/questions/21364948/how-to-align-the-calendar-with-week-number-as-the-intermonth-text][these]]
+   simple modifications that do the trick quite nicely. This configuration also switches the week starting day of the
+   calender from Sunday to Monday.
+
+   #+BEGIN_SRC elisp
+     (setq calendar-week-start-day 1)
+
+     (setq calendar-intermonth-text
+           '(propertize
+             (format "%2d"
+                     (car
+                      (calendar-iso-from-absolute
+                       (calendar-absolute-from-gregorian (list month day year)))))
+             'font-lock-face 'font-lock-warning-face))
+
+     (setq calendar-intermonth-header
+           (propertize "Wk"                  ; or e.g. "KW" in Germany
+                       'font-lock-face 'font-lock-keyword-face))
+   #+END_SRC
+
+   In addition, I don't like how there is a buffer left whenever I
+   close the calendar. To fix this I overwrite the =q= (quit) key
+   locally for the calendar buffer:
+
+   #+BEGIN_SRC elisp
+     (defun ms/quit-calendar ()
+       "This function ensures that the window where the calendar used to be after pressing 'q' is deleted as well"
+       (local-set-key (kbd "q") 'delete-window))
+
+     (add-hook 'calendar-mode-hook 'ms/quit-calendar)
+   #+END_SRC
+
+
 
 * Programming Languages
 
