@@ -373,21 +373,22 @@ and tinkering with my configurations.
   evaluate them and tangle them out to a file.
 
   #+BEGIN_SRC elisp
-   (use-package org
-     :config
-     (org-babel-do-load-languages
-      'org-babel-load-languages
-      '((sh         . t)
-        (js         . t)
-        (emacs-lisp . t)
-        (perl       . t)
-        (scala      . t)
-        (clojure    . t)
-        (python     . t)
-        (ruby       . t)
-        (dot        . t)
-        (css        . t)
-        (plantuml   . t))))
+    (use-package org
+      :config
+      (org-babel-do-load-languages
+       'org-babel-load-languages
+       '((sh         . t)
+         (js         . t)
+         (emacs-lisp . t)
+         (perl       . t)
+         (scala      . t)
+         (clojure    . t)
+         (python     . t)
+         (R          . t)
+         (ruby       . t)
+         (dot        . t)
+         (css        . t)
+         (plantuml   . t))))
   #+END_SRC
 
   It seems to automatically recognize the language used in a source

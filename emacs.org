@@ -1630,8 +1630,6 @@
      (add-hook 'calendar-mode-hook 'ms/quit-calendar)
    #+END_SRC
 
-
-
 * Programming Languages
 
 ** General Language Support
@@ -1839,6 +1837,39 @@
 
    #+BEGIN_SRC elisp
      (require 'init-python)
+   #+END_SRC
+
+** R
+
+   The R programming language is great for statistical analysis. To
+   get this to work we need to install R.  With my Ubuntu OS all it
+   takes is the following command:
+
+   #+BEGIN_SRC sh
+     sudo apt-get install r-base
+   #+END_SRC
+
+   With windows it is a little more involved but the installation
+   files can be downloaded [[https://cran.r-project.org/bin/windows/base/][here]].
+
+   In addition to installing R we need to install [[http://ess.r-project.org/index.php?Section=download][ESS]] the Emacs speaks
+   statistic environment. Again, on Ubuntu all it takes is:
+
+   #+BEGIN_SRC sh
+     sudo apt-get install ess
+   #+END_SRC
+
+   And on windows you can download it from the [[http://ess.r-project.org/index.php?Section=download][ESS download]] page. For
+   the installation procedure you best check the [[http://ess.r-project.org/Manual/ess.html#Manual][manual]]. And since
+   loading the ess mode is a little different depending on the
+   operating system I wrap the different load scenarios in a
+   conditional statement:
+
+   #+BEGIN_SRC elisp
+     (if (eq system-type 'windows-nt)
+         ((add-to-list 'load-path "/path/to/ess/lisp/")
+          (load "ess-site"))
+       (require 'ess-site))
    #+END_SRC
 
 * Org-Mode
