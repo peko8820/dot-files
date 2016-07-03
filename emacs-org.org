@@ -14,7 +14,7 @@ and tinkering with my configurations.
 
   #+BEGIN_SRC elisp
     (use-package org
-      :ensure t        ; But it comes with Emacs now!?
+      :defer t        ; But it comes with Emacs now!?
       :init
       (setq org-use-speed-commands t
             org-hide-emphasis-markers t
@@ -130,40 +130,6 @@ and tinkering with my configurations.
 
   #+BEGIN_SRC elisp
     (setq org-log-done 'note)
-  #+END_SRC
-
-* Source Block Folding
-
-  Although there are built-in functions to hide/show all source blocks
-  I took the inspiration from [[http://emacs.stackexchange.com/questions/7211/collapse-src-blocks-in-org-mode-by-default][this]] blog post that wraps the hide/show
-  functionality inside a neat toggle function. But first I define a
-  variable that holds the current state of the toggle:
-
-  #+BEGIN_SRC elisp
-    (defvar org-blocks-hidden nil)
-  #+END_SRC
-
-  Next the function definition.
-
-  #+BEGIN_SRC elisp
-    (defun org-toggle-blocks ()
-      (interactive)
-      (if org-blocks-hidden
-          (org-show-block-all)
-        (org-hide-block-all))
-      (setq-local org-blocks-hidden (not org-blocks-hidden)))
-  #+END_SRC
-
-  Then we need to hook it to the org-mode:
-
-  #+BEGIN_SRC elisp
-    (add-hook 'org-mode-hook 'org-toggle-blocks)
-  #+END_SRC
-
-  And finally I bind the function to the =C-c t= keyboard sequence:
-
-  #+BEGIN_SRC elisp
-    (define-key org-mode-map (kbd "C-c t") 'org-toggle-blocks)
   #+END_SRC
 
 * Local Key Bindings
@@ -456,6 +422,40 @@ and tinkering with my configurations.
      (setq org-src-fontify-natively t)
      (setq org-src-tab-acts-natively t)
    #+END_SRC
+
+* Source Block Folding
+
+  Although there are built-in functions to hide/show all source blocks
+  I took the inspiration from [[http://emacs.stackexchange.com/questions/7211/collapse-src-blocks-in-org-mode-by-default][this]] blog post that wraps the hide/show
+  functionality inside a neat toggle function. But first I define a
+  variable that holds the current state of the toggle:
+
+  #+BEGIN_SRC elisp
+    (defvar org-blocks-hidden nil)
+  #+END_SRC
+
+  Next the function definition.
+
+  #+BEGIN_SRC elisp
+    (defun org-toggle-blocks ()
+      (interactive)
+      (if org-blocks-hidden
+          (org-show-block-all)
+        (org-hide-block-all))
+      (setq-local org-blocks-hidden (not org-blocks-hidden)))
+  #+END_SRC
+
+  Then we need to hook it to the org-mode:
+
+  #+BEGIN_SRC elisp
+    (add-hook 'org-mode-hook 'org-toggle-blocks)
+  #+END_SRC
+
+  And finally I bind the function to the =C-c t= keyboard sequence:
+
+  #+BEGIN_SRC elisp
+    (define-key org-mode-map (kbd "C-c t") 'org-toggle-blocks)
+  #+END_SRC
 
 * Technical Artifacts
 

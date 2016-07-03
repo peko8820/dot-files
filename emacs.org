@@ -789,6 +789,33 @@
      (require 'init-fixes)
    #+END_SRC
 
+** Multiple Cursors
+
+   While I'm not sure how often I will use [[https://github.com/emacsmirror/multiple-cursors][multiple-cursors]] project,
+   I'm going to try to remember it is there. It doesn't have any
+   default keybindings, so I set up the suggested:
+
+   #+BEGIN_SRC elisp
+     (use-package multiple-cursors
+       :ensure t
+       :config
+       (global-set-key
+        (kbd "C-c C-.")
+        (defhydra hydra-multiple-cursors ()
+          "multiple-cursors"
+          ("." mc/mark-all-dwim                   "all-dwim")
+          ("C-." mc/mark-all-like-this-dwim       "all-like-dwim")
+          ("n" mc/mark-next-like-this             "next")
+          ("p" mc/mark-previous-like-this         "previous")
+          ("a" mc/mark-all-like-this              "mark-all")
+          ("N" mc/mark-next-symbol-like-this      "next-symbol")
+          ("P" mc/mark-previous-symbol-like-this  "previous-symbol")
+          ("A" mc/mark-all-symbols-like-this      "all-symbols")
+          ("f" mc/mark-all-like-this-in-defun     "in-func")
+          ("l" mc/edit-lines                      "all-lines")
+          ("e" mc/edit-ends-of-lines              "end-lines"))))
+   #+END_SRC
+
 ** Expand Region
 
    Wherever you are in a file, and whatever the type of file, you can
@@ -1548,6 +1575,27 @@
                      (concat c "\\(\\s-*\\)") 1 1 t))
    #+END_SRC
 
+** Emoji support
+
+   Although pure text files are great for my calendar exports and
+   various other occasions an Emoji here and there is a handy thing to
+   have. There are a few ways of inserting these little images. For
+   once there is the [[https://github.com/iqbalansari/emacs-emojify][emojify]] project. On the other hand there is the
+   [[https://github.com/syl20bnr/emacs-emoji-cheat-sheet-plus][emacs-emoji-cheat-sheet-plus]] project which offers very nice helm
+   support but does not render ascii emojis.
+
+   #+BEGIN_SRC elisp
+     (use-package emojify
+       :defer t
+       :diminish emojify-mode
+       :init
+       (progn
+         (add-hook 'org-mode-hook 'emojify-mode)))
+   #+END_SRC
+
+   For right now I will stick with the emojify project especially
+   because when turned on it will render emojis automatically.
+
 * Programming Languages
 
 ** General Language Support
@@ -1772,8 +1820,10 @@
 
    #+BEGIN_SRC elisp
      (use-package git-gutter-fringe
-        :ensure t
-        :config (git-gutter-mode 1))
+       :defer t
+       :ensure t
+       :diminish git-gutter-mode
+       :init (git-gutter-mode 1))
    #+END_SRC
 
    I want to have special mode for Git's =configuration= file:
