@@ -23,6 +23,7 @@ and tinkering with my configurations.
             org-src-fontify-natively t   ;; Pretty code blocks
             org-src-tab-acts-natively t
             org-confirm-babel-evaluate nil
+            org-list-allow-alphabetical t
             org-export-with-sub-superscripts '{}
             org-todo-keywords '((sequence "TODO(t)" "DOING(g)" "WAITING(w)" "|" "DONE(d)")
                                 (sequence "|" "CANCELED(c)")))
@@ -34,22 +35,22 @@ and tinkering with my configurations.
              ("C-M-|" . indent-rigidly))
       :config
       ;; (unless (eq system-type 'windows-nt)
-        (font-lock-add-keywords            ; A bit silly but my headers are now
-         'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
-                      (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
-                                nil)))
-                     ("^\\*+ \\(DOING\\) "
-                      (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
-                                nil)))
-                     ("^\\*+ \\(WAITING\\) "
-                      (1 (progn (compose-region (match-beginning 1) (match-end 1) "?")
-                                nil)))
-                     ("^\\*+ \\(CANCELED\\) "
-                      (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
-                                nil)))
-                     ("^\\*+ \\(DONE\\) "
-                      (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
-                                nil))))) ;;)
+      (font-lock-add-keywords            ; A bit silly but my headers are now
+       'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
+                              nil)))
+                   ("^\\*+ \\(DOING\\) "
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
+                              nil)))
+                   ("^\\*+ \\(WAITING\\) "
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "?")
+                              nil)))
+                   ("^\\*+ \\(CANCELED\\) "
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                              nil)))
+                   ("^\\*+ \\(DONE\\) "
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
+                              nil))))) ;;)
 
       (define-key org-mode-map (kbd "M-C-n") 'org-end-of-item-list)
       (define-key org-mode-map (kbd "M-C-p") 'org-beginning-of-item-list)

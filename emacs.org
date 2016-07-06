@@ -131,6 +131,7 @@
                 "C:/Program Files (x86)/Git/mingw64/bin"
                 "C:/Program Files (x86)/Git/usr/bin"
                 "C:/Program Files (x86)/LTC/LTspiceIV"
+                "C:/Program Files (x86)/SumatraPDF"
                 "C:/Program Files/TortoiseGit/bin"
                 "C:/Python27"
                 "C:/ProgramData/Oracle/Java/javapath/"
@@ -943,8 +944,9 @@
        ;; We create a table of "odd balls" where the front and the end are
        ;; not the same string.
        (let* ((s-table '(("#e" . ("#+BEGIN_EXAMPLE\n" "\n#+END_EXAMPLE") )
-                         ("#s" . ("#+BEGIN_SRC \n"    "\n#+END_SRC") )
+                         ("#s" . ("#+BEGIN_SRC \n"    "\n#+END_SRC"))
                          ("#q" . ("#+BEGIN_QUOTE\n"   "\n#+END_QUOTE"))
+                         ("#l" . ("#+BEGIN_LaTeX\n"   "\n#+END_LaTeX"))
                          ("<"  . ("<" ">"))
                          ("("  . ("(" ")"))
                          ("{"  . ("{" "}"))
@@ -1995,14 +1997,9 @@
        :commands turn-on-reftex
        :init
        (setq reftex-plug-into-AUCTeX t)
-       (when (eq system-type 'gnu/linux)
-         (setq reftex-default-bibliography '("~/Bibliography/library.bib")))
-       (when (eq system-type 'windows-nt)
-         (setq reftex-default-bibliography
-               '("c:/_work/Bibliography/library.bib")))
-
+       (setq reftex-default-bibliography '("~/Bibliography/library.bib"))
        (setq reftex-bibliography-commands
-             '("bibliography" "nobibliography" "addbibresource")) )
+             '("bibliography" "nobibliography" "addbibresource")))
    #+END_SRC
 
    Every once in awhile I like to include citations in my orgmode
@@ -2045,7 +2042,7 @@
    hardcode this into your citation formats, I prefer to put
    abbreviations in for the citation formats.
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC elisp :tangle no
      (setq org-link-abbrev-alist
            '(("bib" . "~/Bibliography/library.bib::%s")
              ("datasheet" . "~/Datasheets/::%s.pdf")
@@ -2086,8 +2083,8 @@
 
        ;; For helm-bibtex citation completion
        (setq bibtex-completion-bibliography "~/Bibliography/library.bib"
-           bibtex-completion-library-path "~/Bibliography/documents"
-           bibtex-completion-notes-path "~/Bibliography/helm-bibtex-notes")
+             bibtex-completion-library-path "~/Bibliography/documents"
+             bibtex-completion-notes-path "~/Bibliography/helm-bibtex-notes")
 
        ;; Depending on the operating system I am on I need to set different
        ;; functions for opening PDF documents
@@ -2095,7 +2092,7 @@
         ((eq system-type 'windows-nt)        ; Windows
          (setq bibtex-completion-pdf-open-function
                (lambda (fpath)
-                 (start-process "open" "*open*" "open" fpath))))
+                 (start-process "open" "*open*" "SumatraPDF" fpath ))))
         ((eq system-type 'gnu/linux)         ; Linux (Ubuntu in my case)
          (setq bibtex-completion-pdf-open-function
                (lambda (fpath)
