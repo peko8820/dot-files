@@ -132,6 +132,21 @@ and tinkering with my configurations.
     (setq org-log-done 'note)
   #+END_SRC
 
+* Calendar Settings
+
+  There are a few calendar settings I need to customize from the
+  =org-export-icalendar= group to ensure that the locally created events
+  show up at the right time when I export an agenda to Google
+  calendar.
+
+  #+BEGIN_SRC elisp
+    (setq
+     org-icalendar-date-time-format ":%Y%m%dT%H%M%SZ"  ; UTC
+     org-icalendar-timezone "Europe/Berlin"  ; Berlin timezone
+     org-icalendar-store-UID "t"
+     )
+  #+END_SRC
+
 * Local Key Bindings
 
   A couple of short-cut keys to make it easier to edit text.
