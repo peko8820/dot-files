@@ -142,6 +142,7 @@ and tinkering with my configurations.
 
   #+BEGIN_SRC elisp
     (setq
+     org-agenda-default-appointment-duration 60
      org-icalendar-date-time-format ":%Y%m%dT%H%M%SZ"  ; UTC
      org-icalendar-timezone "Europe/Berlin"  ; Berlin timezone
      org-icalendar-store-UID "t"
