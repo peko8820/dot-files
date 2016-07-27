@@ -374,7 +374,7 @@ and tinkering with my configurations.
              "* %?\n\n  %i\n\n  From: %a" :empty-lines 1)
             ("t" "Task Entry"        entry
              (file org-default-tasks-file)
-             "* %?\n\n  %i\n\n  From: %a" :empty-lines 1)))
+             "* TODO %?\n\n  %i\n\n  From: %a" :empty-lines 1)))
   #+END_SRC
 
   After you have selected the template, you type in your note and hit

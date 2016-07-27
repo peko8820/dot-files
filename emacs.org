@@ -323,6 +323,19 @@
      (setq-default scroll-preserve-screen-position 'keep)
    #+END_SRC
 
+   Many times I need to reload a file but the =revert-buffer= function
+   always asks me. And yes I am sure I want to revert the buffer!!!
+   That is why I called the function in the first place. Since I am
+   lazy I create a little wrapper that takes care of this problem:
+
+   #+BEGIN_SRC elisp
+     (defun revert-buffer-no-confirm ()
+       "Function that reverts buffer without asking for confirmation"
+       (interactive)
+       (revert-buffer 'noconfirm t))
+
+   #+END_SRC
+
 ** Tabs vs Spaces
 
    I have learned to distrust tabs in my source code, so let's make
@@ -1577,7 +1590,7 @@
                      (concat c "\\(\\s-*\\)") 1 1 t))
    #+END_SRC
 
-** Emoji support
+** COMMENT Emoji support
 
    Although pure text files are great for my calendar exports and
    various other occasions an Emoji here and there is a handy thing to
@@ -1841,7 +1854,7 @@
      (require 'init-python)
    #+END_SRC
 
-** R
+** COMMENT R
 
    The R programming language is great for statistical analysis. To
    get this to work we need to install R.  With my Ubuntu OS all it
