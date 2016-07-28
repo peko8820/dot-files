@@ -1854,7 +1854,7 @@
      (require 'init-python)
    #+END_SRC
 
-** COMMENT R
+** R
 
    The R programming language is great for statistical analysis. To
    get this to work we need to install R.  With my Ubuntu OS all it
@@ -1882,7 +1882,7 @@
 
    #+BEGIN_SRC elisp
      (if (eq system-type 'windows-nt)
-         ((add-to-list 'load-path "/path/to/ess/lisp/")
+         ((add-to-list 'load-path ("/path/to/ess/lisp/"))
           (load "ess-site"))
        (require 'ess-site))
    #+END_SRC
@@ -2119,7 +2119,7 @@
 
 * Applications
 ** TODO Web Browsing
-** TODO EShell
+** DOING EShell
 
    See [[file:emacs-eshell.org][emacs-eshell.el]] for details of configuring and using EShell.
 
