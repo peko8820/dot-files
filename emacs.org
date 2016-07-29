@@ -1953,6 +1953,11 @@
 
        ;; Tell git to prompt me for my username/password when using the Open SSH protocol
        (setenv "GIT_ASKPASS" "git-gui--askpass")
+       ;; Set the ssh variables for use at work
+       (when (and (eq system-type 'windows-nt) (string= user-login-name 'sieversm))
+         (setenv "SSH_AGENT_PID" "1032")
+         (setenv "SSH_AUTH_SOCK" "C:/Users/sieversm/home/.ssh-socket"))
+
        :bind ("C-x g" . magit-status))
    #+END_SRC
 
