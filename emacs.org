@@ -1408,71 +1408,60 @@
 * Miscellaneous Settings
 ** Line Numbers
 
-   There are two line number features I like to use. First the
-   regurlar linum package and second the relative linum package that
-   allows me to jump to e.g. the 9th previous line with =C-9 C-p=.
+   Turn =linum-mode= on/off with =Super-K=.  However, I
+   turn this on automatically for programming modes.
 
    #+BEGIN_SRC elisp
-     (add-hook 'prog-mode-hook 'linum-mode)
+     (use-package linum
+       :init
+       (add-hook 'prog-mode-hook 'linum-mode)
+       (add-hook 'linum-mode-hook (lambda () (set-face-attribute 'linum nil :height 75)))
+
+       :config
+       (defun linum-fringe-toggle ()
+         "Toggles the line numbers as well as the fringe."    (interactive)
+         (cond (linum-mode (fringe-mode '(0 . 0))
+                           (linum-mode -1))
+               (t          (fringe-mode '(8 . 0))
+                           (linum-mode 1))))
+
+       :bind (("A-C-k"   . linum-mode)
+              ("s-C-k"   . linum-mode)
+              ("A-C-M-k" . linum-fringe-toggle)
+              ("s-C-M-k" . linum-fringe-toggle)))
    #+END_SRC
 
-   If we make the line numbers a fixed size, then increasing or
-   decreasing the font size doesn't truncate the numbers:
+   *Note:* make the line numbers a fixed size, then increasing or
+   decreasing the font size doesn't truncate the numbers.
 
-   #+BEGIN_SRC elisp
-     (defun fix-linum-size ()
-       (interactive)
-       (set-face-attribute 'linum nil :height 110))
-
-     (add-hook 'linum-mode-hook 'fix-linum-size)
-   #+END_SRC
-
-   If we alternate between line numbers and no-line numbers, I also
-   have to turn on/off the fringe. Actually, this is really only
-   useful when giving presentations.
-
-   #+BEGIN_SRC elisp
-     (defun linum-off-mode ()
-       "Toggles the line numbers as well as the fringe. This allows me
-     to maximize the screen estate."
-       (interactive)
-       (if linum-mode
-           (progn
-             ;;(fringe-mode '(0 . 0))
-             (linum-mode -1))
-         ;;(fringe-mode '(8 . 0))
-         (linum-mode 1)))
-
-      ;;(global-set-key (kbd "<f9> d") 'linum-off-mode)
-   #+END_SRC
-
-   I'm intrigued with the [[https://github.com/coldnew/linum-relative][linum-relative]] mode (especially since I can
-   toggle between them). The idea is that I can see the line that I
-   want to jump to (like one 9 lines away), and then =C-9 C-n= to
-   quickly pop to it. To combine linum
+   The [[https://github.com/coldnew/linum-relative][linum-relative]] mode allows one to see the /destination/ line as a
+   relative distance (like one 9 lines lower), and then =C-9 C-n= can
+   quickly pop to it.
 
    #+BEGIN_SRC elisp
      (use-package linum-relative
        :ensure t
        :config
-       ;; Otherwise, let's take advantage of the relative line numbering:
        (defun linum-new-mode ()
          "If line numbers aren't displayed, then display them.
           Otherwise, toggle between absolute and relative numbers."
          (interactive)
          (if linum-mode
              (linum-relative-toggle)
-           (linum-mode 1)))
-       )
+           (linum-new-mode 1)))
+
+       :bind ("A-k" . linum-new-mode)
+             ("s-k" . linum-new-mode))   ;; For Linux
    #+END_SRC
 
-   To combine the functions above and access the with one keyboard
-   sequence I use the following:
+   But since the =SUPER= key on my windows machine usually does
+   something windows related I added the following sequence as a
+   backup plan:
 
    #+BEGIN_SRC elisp
      (define-sequence 'linum-select-map "<f9> l" 'funcall
-            (list (list "l" 'linum-new-mode)
-                  (list "o" 'linum-off-mode)))
+       (list (list "l" 'linum-new-mode)
+             (list "o" 'linum-fringe-toggle)))
    #+END_SRC
 
 ** Smart Comments
@@ -1590,26 +1579,6 @@
                      (concat c "\\(\\s-*\\)") 1 1 t))
    #+END_SRC
 
-** COMMENT Emoji support
-
-   Although pure text files are great for my calendar exports and
-   various other occasions an Emoji here and there is a handy thing to
-   have. There are a few ways of inserting these little images. For
-   once there is the [[https://github.com/iqbalansari/emacs-emojify][emojify]] project. On the other hand there is the
-   [[https://github.com/syl20bnr/emacs-emoji-cheat-sheet-plus][emacs-emoji-cheat-sheet-plus]] project which offers very nice helm
-   support but does not render ascii emojis.
-
-   #+BEGIN_SRC elisp
-     (use-package emojify
-       :defer t
-       :diminish emojify-mode
-       :init
-       (progn
-         (add-hook 'org-mode-hook 'emojify-mode)))
-   #+END_SRC
-
-   For right now I will stick with the emojify project especially
-   because when turned on it will render emojis automatically.
 ** Calendar Tweeks
 
    I like the Emacs calendar but I would like to see the week numbers
@@ -2119,7 +2088,7 @@
 
 * Applications
 ** TODO Web Browsing
-** DOING EShell
+** EShell
 
    See [[file:emacs-eshell.org][emacs-eshell.el]] for details of configuring and using EShell.
 
