@@ -399,8 +399,6 @@ and tinkering with my configurations.
                                      (js         . t)
                                      (emacs-lisp . t)
                                      (perl       . t)
-                                     (scala      . t)
-                                     (closure    . t)
                                      (python     . t)
                                      (ruby       . t)
                                      (R          . t)
