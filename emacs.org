@@ -1464,6 +1464,83 @@
              (list "o" 'linum-fringe-toggle)))
    #+END_SRC
 
+** Better Bookmarks
+
+   For me, bookmarks serve two functions. First, as a way to jump
+   back to interesting places by name (and annotate those places), and
+   second, as form of /bread crumbs/ while I'm toiling around a large
+   codebase.
+
+   For normal bookmarks, I'd rather use Helm:
+   #+BEGIN_SRC elisp
+     (use-package bookmark
+       :init (setq bookmark-save-flag 1)
+       :config
+       (defun ha/add-bookmark (name)
+         (interactive
+          (list (let* ((filename  (file-name-base (buffer-file-name)))
+                       (func-name (which-function))
+                       (initial   (format "%s:%s " filename func-name)))
+                  (read-string "Bookmark: " initial))))
+         (bookmark-set name))
+       :bind  (("C-c b m" . ha/add-bookmark)
+               ("C-x r m" . ha/add-bookmark)
+               ("C-x r b" . helm-bookmarks)))
+   #+END_SRC
+
+*** Visual Bookmarks... Breadcrumbs
+
+    For dropping visual breadcrumbs throughout a single file or
+    multiple files, we use the [[https://github.com/joodland/bm][BM package]].
+
+    #+BEGIN_SRC elisp
+      (use-package bm
+        :ensure t
+        :init
+        (setq bm-highlight-style 'bm-highlight-only-fringe
+              bm-cycle-all-buffers t)
+        :config
+        ;; Make a more bookmarky symbol for a 'mark':
+        (define-fringe-bitmap 'bm-marker-left [254 254 254 254 254 238 198 130] 8 8 'center)
+        (let ((fringe-backgd (face-background 'fringe)))
+          (set-face-attribute 'bm-fringe-face nil
+                              :foreground "green" :background fringe-backgd))
+
+        (defun bm-bookmark-defun ()
+          "Drops a temporary breadcrumb/bookmark at the beginning of the current defun."
+          (interactive)
+          (save-excursion
+            (beginning-of-defun)
+            (bm-toggle)))
+
+        :bind (("C-<f5>" . bm-toggle)
+               ("<f5>"   . bm-next)
+               ("M-<f5>" . bm-previous)
+               ("C-c b s" . bm-show)
+               ("C-c b r" . bm-bookmark-regexp)
+               ("C-c b f" . bm-bookmark-defun)
+               ("C-c b A" . bm-bookmark-annotate)
+               ("C-c b a" . bm-bookmark-show-annotation)
+               ("<left-margin> <mouse-1>" . bm-toggle-mouse)
+               ("<left-fringe> <mouse-1>" . bm-toggle-mouse)))
+    #+END_SRC
+
+    - C-F5 :: bm-toggle to drop a mark or remove it
+    - F5 :: bm-next to go to the next mark
+    - M-F5 :: bm-previous to go to the previous mark
+
+    - C-c b s :: bm-show brings up a buffer with all the little marks
+         and the contents their line (see =bm-show-all= for all buffers)
+    - C-c b r :: bm-bookmark-regexp to create a bunch of bookmarks
+    - C-c b f :: bm-bookmark-function to bookmark the start of the function
+    - C-c b A :: bm-bookmark-annotate Annotate the mark
+    - C-c b a ::  Show the annotation (if any of the mark) ... would be
+         nice if this could be automatically displayed.
+
+    The biggest question is if I want =bm-previous= to go to the previous
+    logical mark in the file or last mark that was set... perhaps we
+    do both with different keys?
+
 ** Smart Comments
 
    The [[https://github.com/paldepind/smart-comment][smart-comment]] project has the nice feature of commenting a line
