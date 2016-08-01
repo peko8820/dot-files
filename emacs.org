@@ -135,6 +135,8 @@
                 "C:/Program Files/TortoiseGit/bin"
                 "C:/Python27"
                 "C:/ProgramData/Oracle/Java/javapath/"
+                "C:/Program Files/R/R-3.3.1/"
+                "C:/Program Files/R/R-3.3.1/bin"
                 ) )
              )
 
@@ -1854,7 +1856,7 @@
      (require 'init-python)
    #+END_SRC
 
-** COMMENT R
+** R
 
    The R programming language is great for statistical analysis. To
    get this to work we need to install R.  With my Ubuntu OS all it
@@ -1880,11 +1882,52 @@
    operating system I wrap the different load scenarios in a
    conditional statement:
 
+   I found some nifty initialization settings for the ESS package [[http://gongzhitaao.org/dotemacs/][Gong
+   Zhitaao's]] webpage:
+
    #+BEGIN_SRC elisp
-     (if (eq system-type 'windows-nt)
-         ((add-to-list 'load-path "/path/to/ess/lisp/")
-          (load "ess-site"))
-       (require 'ess-site))
+     (use-package ess-site
+       :config
+
+       (setq ess-R-font-lock-keywords
+             '((ess-R-fl-keyword:modifiers . t)
+               (ess-R-fl-keyword:fun-defs . t)
+               (ess-R-fl-keyword:keywords . t)
+               (ess-R-fl-keyword:assign-ops . t)
+               (ess-R-fl-keyword:constants . t)
+               (ess-fl-keyword:fun-calls)
+               (ess-fl-keyword:numbers)
+               (ess-fl-keyword:operators)
+               (ess-fl-keyword:delimiters)
+               (ess-fl-keyword:=)
+               (ess-R-fl-keyword:F&T . t)
+               (ess-R-fl-keyword:%op% . t)))
+
+       (setq inferior-R-font-lock-keywords
+             '((ess-S-fl-keyword:prompt . t)
+               (ess-R-fl-keyword:messages . t)
+               (ess-R-fl-keyword:modifiers . t)
+               (ess-R-fl-keyword:fun-defs . t)
+               (ess-R-fl-keyword:keywords . t)
+               (ess-R-fl-keyword:assign-ops . t)
+               (ess-R-fl-keyword:constants . t)
+               (ess-fl-keyword:matrix-labels . t)
+               (ess-fl-keyword:fun-calls)
+               (ess-fl-keyword:numbers)
+               (ess-fl-keyword:operators)
+               (ess-fl-keyword:delimiters)
+               (ess-fl-keyword:=)
+               (ess-R-fl-keyword:F&T . t)))
+
+       (defun my-ess-init ()
+         "Init my ess mode."
+         (setq ess-help-own-frame 'one)
+         (setq ess-tab-complete-in-script t))
+         ;;(setq ess-first-tab-never-complete
+           ;;    'symbol-or-paren-or-punct))
+
+       (add-hook 'ess-mode-hook #'my-ess-init))
+       ;;(add-hook 'inferior-ess-mode-hook #'turn-on-smartparens-mode))
    #+END_SRC
 
 * Org-Mode
