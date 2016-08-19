@@ -1085,30 +1085,6 @@
        )
    #+END_SRC
 
-** Editing Root Files
-
-   According to [[http://emacs-fu.blogspot.com/2013/03/editing-with-root-privileges-once-more.html][Emacs Fu]], we can use the wonderful Tramp to edit
-   Root-owned files, as in:
-
-   #+BEGIN_SRC elisp
-     (defun ha/find-file-as-root ()
-       "Like `ido-find-file, but automatically edit the file with
-     root-privileges (using tramp/sudo), if the file is not writable by
-     user."
-       (interactive)
-       (let ((file (ido-read-file-name "Edit as root: ")))
-         (unless (file-writable-p file)
-           (setq file (concat "/sudo:root@localhost:" file)))
-         (find-file file)))
-   #+END_SRC
-
-   The trick, as always, is finding the correct keybinding... but I
-   have the =C-c f= as prefix for loading all sorts of files...
-
-   #+BEGIN_SRC elisp
-     (global-set-key (kbd "C-c f r") 'ha/find-file-as-root)
-   #+END_SRC
-
 ** IDO (Interactively DO Things)
 
    According to [[http://www.masteringemacs.org/articles/2010/10/10/introduction-to-ido-mode/][Mickey]], IDO is the greatest thing.
@@ -1147,6 +1123,54 @@
        :config
        (ido-vertical-mode 1))
    #+END_SRC
+
+*** IDO File Listing by Modified Time
+
+    This sorts an IDO filelist by /mtime/ instead of alphabetically.
+
+    #+BEGIN_SRC elisp
+      (defun ido-sort-mtime ()
+        "Reorder the IDO file list to sort from most recently modified."
+        (setq ido-temp-list
+              (sort ido-temp-list
+                    (lambda (a b)
+                      (time-less-p
+                       (sixth (file-attributes (concat ido-current-directory b)))
+                       (sixth (file-attributes (concat ido-current-directory a)))))))
+        (ido-to-end  ;; move . files to end (again)
+         (delq nil (mapcar
+                    (lambda (x) (and (char-equal (string-to-char x) ?.) x))
+                    ido-temp-list))))
+
+      (add-hook 'ido-make-file-list-hook 'ido-sort-mtime)
+      (add-hook 'ido-make-dir-list-hook 'ido-sort-mtime)
+    #+END_SRC
+
+*** Editing Root Files
+
+    Once I used a =find-file-as-root= function (graciously borrowed from
+    [[http://emacs-fu.blogspot.com/2013/03/editing-with-root-privileges-once-more.html][Emacs Fu]] and Howard Abrams), however, [[http://emacsredux.com/blog/2013/04/21/edit-files-as-root/][bbatsov]] offered a better idea to lend some
+    /advice/ to =find-file=, so that non-writable files would be
+    automatically /re-opened/ using the =sudo= feature of Tramp.
+
+    The new version works with both local and remotely access files:
+
+    #+BEGIN_SRC elisp
+      (defadvice ido-find-file (after find-file-sudo activate)
+        "Find file as root if necessary."
+        (unless (and buffer-file-name
+                     (file-writable-p buffer-file-name))
+          (let* ((file-name (buffer-file-name))
+                 (file-root (if (string-match "/ssh:\\([^:]+\\):\\(.*\\)" file-name)
+                                (concat "/ssh:"  (match-string 1 file-name)
+                                        "|sudo:" (match-string 1 file-name)
+                                        ":"      (match-string 2 file-name))
+                              (concat "/sudo:localhost:" file-name))))
+            (find-alternate-file file-root))))
+    #+END_SRC
+
+    No special key-bindings, just load up a file, and if I can't write
+    it, it will automatically ask me for my credentials, and away I go.
 
 ** SMEX
 
@@ -1410,72 +1434,138 @@
 * Miscellaneous Settings
 ** Line Numbers
 
-   There are two line number features I like to use. First the
-   regurlar linum package and second the relative linum package that
-   allows me to jump to e.g. the 9th previous line with =C-9 C-p=.
+   Turn =linum-mode= on/off with =Super-K=.  However, I
+   turn this on automatically for programming modes.
 
    #+BEGIN_SRC elisp
-     (add-hook 'prog-mode-hook 'linum-mode)
+     (use-package linum
+       :init
+       (add-hook 'prog-mode-hook 'linum-mode)
+       (add-hook 'linum-mode-hook (lambda () (set-face-attribute 'linum nil :height 75)))
+
+       :config
+       (defun linum-fringe-toggle ()
+         "Toggles the line numbers as well as the fringe."    (interactive)
+         (cond (linum-mode (fringe-mode '(0 . 0))
+                           (linum-mode -1))
+               (t          (fringe-mode '(8 . 0))
+                           (linum-mode 1))))
+
+       :bind (("A-C-k"   . linum-mode)
+              ("s-C-k"   . linum-mode)
+              ("A-C-M-k" . linum-fringe-toggle)
+              ("s-C-M-k" . linum-fringe-toggle)))
    #+END_SRC
 
-   If we make the line numbers a fixed size, then increasing or
-   decreasing the font size doesn't truncate the numbers:
+   *Note:* make the line numbers a fixed size, then increasing or
+   decreasing the font size doesn't truncate the numbers.
 
-   #+BEGIN_SRC elisp
-     (defun fix-linum-size ()
-       (interactive)
-       (set-face-attribute 'linum nil :height 110))
-
-     (add-hook 'linum-mode-hook 'fix-linum-size)
-   #+END_SRC
-
-   If we alternate between line numbers and no-line numbers, I also
-   have to turn on/off the fringe. Actually, this is really only
-   useful when giving presentations.
-
-   #+BEGIN_SRC elisp
-     (defun linum-off-mode ()
-       "Toggles the line numbers as well as the fringe. This allows me
-     to maximize the screen estate."
-       (interactive)
-       (if linum-mode
-           (progn
-             ;;(fringe-mode '(0 . 0))
-             (linum-mode -1))
-         ;;(fringe-mode '(8 . 0))
-         (linum-mode 1)))
-
-      ;;(global-set-key (kbd "<f9> d") 'linum-off-mode)
-   #+END_SRC
-
-   I'm intrigued with the [[https://github.com/coldnew/linum-relative][linum-relative]] mode (especially since I can
-   toggle between them). The idea is that I can see the line that I
-   want to jump to (like one 9 lines away), and then =C-9 C-n= to
-   quickly pop to it. To combine linum
+   The [[https://github.com/coldnew/linum-relative][linum-relative]] mode allows one to see the /destination/ line as a
+   relative distance (like one 9 lines lower), and then =C-9 C-n= can
+   quickly pop to it.
 
    #+BEGIN_SRC elisp
      (use-package linum-relative
        :ensure t
        :config
-       ;; Otherwise, let's take advantage of the relative line numbering:
        (defun linum-new-mode ()
          "If line numbers aren't displayed, then display them.
           Otherwise, toggle between absolute and relative numbers."
          (interactive)
          (if linum-mode
              (linum-relative-toggle)
-           (linum-mode 1)))
-       )
+           (linum-new-mode 1)))
+
+       :bind ("A-k" . linum-new-mode)
+             ("s-k" . linum-new-mode))   ;; For Linux
    #+END_SRC
 
-   To combine the functions above and access the with one keyboard
-   sequence I use the following:
+   But since the =SUPER= key on my windows machine usually does
+   something windows related I added the following sequence as a
+   backup plan:
 
    #+BEGIN_SRC elisp
      (define-sequence 'linum-select-map "<f9> l" 'funcall
-            (list (list "l" 'linum-new-mode)
-                  (list "o" 'linum-off-mode)))
+       (list (list "l" 'linum-new-mode)
+             (list "o" 'linum-fringe-toggle)))
    #+END_SRC
+
+** Better Bookmarks
+
+   For me, bookmarks serve two functions. First, as a way to jump
+   back to interesting places by name (and annotate those places), and
+   second, as form of /bread crumbs/ while I'm toiling around a large
+   codebase.
+
+   For normal bookmarks, I'd rather use Helm:
+   #+BEGIN_SRC elisp
+     (use-package bookmark
+       :init (setq bookmark-save-flag 1)
+       :config
+       (defun ha/add-bookmark (name)
+         (interactive
+          (list (let* ((filename  (file-name-base (buffer-file-name)))
+                       (func-name (which-function))
+                       (initial   (format "%s:%s " filename func-name)))
+                  (read-string "Bookmark: " initial))))
+         (bookmark-set name))
+       :bind  (("C-c b m" . ha/add-bookmark)
+               ("C-x r m" . ha/add-bookmark)
+               ("C-x r b" . helm-bookmarks)))
+   #+END_SRC
+
+*** Visual Bookmarks... Breadcrumbs
+
+    For dropping visual breadcrumbs throughout a single file or
+    multiple files, we use the [[https://github.com/joodland/bm][BM package]].
+
+    #+BEGIN_SRC elisp
+      (use-package bm
+        :ensure t
+        :init
+        (setq bm-highlight-style 'bm-highlight-only-fringe
+              bm-cycle-all-buffers t)
+        :config
+        ;; Make a more bookmarky symbol for a 'mark':
+        (define-fringe-bitmap 'bm-marker-left [254 254 254 254 254 238 198 130] 8 8 'center)
+        (let ((fringe-backgd (face-background 'fringe)))
+          (set-face-attribute 'bm-fringe-face nil
+                              :foreground "green" :background fringe-backgd))
+
+        (defun bm-bookmark-defun ()
+          "Drops a temporary breadcrumb/bookmark at the beginning of the current defun."
+          (interactive)
+          (save-excursion
+            (beginning-of-defun)
+            (bm-toggle)))
+
+        :bind (("C-<f5>" . bm-toggle)
+               ("<f5>"   . bm-next)
+               ("M-<f5>" . bm-previous)
+               ("C-c b s" . bm-show)
+               ("C-c b r" . bm-bookmark-regexp)
+               ("C-c b f" . bm-bookmark-defun)
+               ("C-c b A" . bm-bookmark-annotate)
+               ("C-c b a" . bm-bookmark-show-annotation)
+               ("<left-margin> <mouse-1>" . bm-toggle-mouse)
+               ("<left-fringe> <mouse-1>" . bm-toggle-mouse)))
+    #+END_SRC
+
+    - C-F5 :: bm-toggle to drop a mark or remove it
+    - F5 :: bm-next to go to the next mark
+    - M-F5 :: bm-previous to go to the previous mark
+
+    - C-c b s :: bm-show brings up a buffer with all the little marks
+         and the contents their line (see =bm-show-all= for all buffers)
+    - C-c b r :: bm-bookmark-regexp to create a bunch of bookmarks
+    - C-c b f :: bm-bookmark-function to bookmark the start of the function
+    - C-c b A :: bm-bookmark-annotate Annotate the mark
+    - C-c b a ::  Show the annotation (if any of the mark) ... would be
+         nice if this could be automatically displayed.
+
+    The biggest question is if I want =bm-previous= to go to the previous
+    logical mark in the file or last mark that was set... perhaps we
+    do both with different keys?
 
 ** Smart Comments
 
@@ -1592,26 +1682,6 @@
                      (concat c "\\(\\s-*\\)") 1 1 t))
    #+END_SRC
 
-** COMMENT Emoji support
-
-   Although pure text files are great for my calendar exports and
-   various other occasions an Emoji here and there is a handy thing to
-   have. There are a few ways of inserting these little images. For
-   once there is the [[https://github.com/iqbalansari/emacs-emojify][emojify]] project. On the other hand there is the
-   [[https://github.com/syl20bnr/emacs-emoji-cheat-sheet-plus][emacs-emoji-cheat-sheet-plus]] project which offers very nice helm
-   support but does not render ascii emojis.
-
-   #+BEGIN_SRC elisp
-     (use-package emojify
-       :defer t
-       :diminish emojify-mode
-       :init
-       (progn
-         (add-hook 'org-mode-hook 'emojify-mode)))
-   #+END_SRC
-
-   For right now I will stick with the emojify project especially
-   because when turned on it will render emojis automatically.
 ** Calendar Tweeks
 
    I like the Emacs calendar but I would like to see the week numbers
@@ -2167,7 +2237,7 @@
 
 * Applications
 ** TODO Web Browsing
-** TODO EShell
+** EShell
 
    See [[file:emacs-eshell.org][emacs-eshell.el]] for details of configuring and using EShell.
 
