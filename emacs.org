@@ -1592,7 +1592,9 @@
      (use-package smartscan
        :ensure t
        :bind ("M-n" . smartscan-symbol-go-forward)
-             ("M-p" . smartscan-symbol-go-backward))
+       ("M-p" . smartscan-symbol-go-backward))
+
+     (require 'smartscan)
    #+END_SRC
 
 ** Strip Whitespace on Save
