@@ -86,65 +86,18 @@
 
    #+BEGIN_SRC elisp
      (when (eq system-type 'windows-nt)
-       (let (
-             (mypaths
-              '(
-                "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
-                "C:/Program Files/Perl64/site/bin"
-                "C:/Program Files/Perl64/bin"
-                "C:/Python27/Lib/site-packages/PyQt4"
-                "C:/Program Files (x86)/Intel/iCLS Client"
-                "C:/Program Files/Intel/iCLS Client"
-                "C:/Program Files/Intel/Intel(R) Management Engine Components/DAL"
-                "C:/Program Files/Intel/Intel(R) Management Engine Components/IPT"
-                "C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/DAL"
-                "C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/IPT"
-                "C:/Python27"
-                "C:/Python27/DLLs"
-                "C:/Python27/Scripts"
-                "C:/Python27/Lib/site-packages/vtk"
-                "C:/Python27/Lib/site-packages/osgeo"
-                "C:/Program Files (x86)/pythonxy/SciTE-3.5.1-4"
-                "C:/Program Files (x86)/pythonxy/console"
-                "C:/Program Files (x86)/pythonxy/swig"
-                "C:/Program Files (x86)/pythonxy/gettext/bin"
-                "C:/Program Files/gnuplot/bin"
-                "C:/Program Files (x86)/Graphviz2.38/bin"
-                "C:/Program Files (x86)/Emacs-24.5/bin"
-                "C:/texlive/2016/bin/win32"
-                "C:/Program Files (x86)/IVI Foundation/VISA/WinNT/Bin"
-                "C:/Program Files/IVI Foundation/VISA/Win64/Bin"
-                "C:/Program Files (x86)/IVI Foundation/VISA/WinNT/Bin"
-                "C:/Program Files (x86)/WinSCP"
-                "C:/Program Files (x86)/gs/gs9.18/bin"
-                "C:/Program Files (x86)/JabRef"
-                "C:/Program Files/pstoedit"
-                "C:/Program Files (x86)/Meld"
-                "C:/_work/gradle-2.9/bin"
-                "C:/Program Files (x86)/IVI Foundation/IVI/bin"
-                "C:/Program Files/IVI Foundation/IVI/bin"
-                "C:/Program Files (x86)/Aspell/bin"
-                "C:/Program Files (x86)/Lua/5.1"
-                "C:/Program Files (x86)/Lua/5.1/clibs"
-                "C:/Program Files (x86)/Pandoc"
-                "C:/Program Files (x86)/Git/cmd"
-                "C:/Program Files (x86)/Git/mingw64/bin"
-                "C:/Program Files (x86)/Git/usr/bin"
-                "C:/Program Files (x86)/LTC/LTspiceIV"
-                "C:/Program Files (x86)/SumatraPDF"
-                "C:/Program Files/TortoiseGit/bin"
-                "C:/Python27"
-                "C:/ProgramData/Oracle/Java/javapath/"
-                "C:/Program Files/R/R-3.3.1/"
-                "C:/Program Files/R/R-3.3.1/bin"
-                ) )
-             )
+       (setenv "PATH" (mapconcat 'identity ms/PATH_on_Windows ";") )
+       (setq exec-path (append ms/PATH_on_Windows (list "." exec-directory))))
+   #+END_SRC
 
-         (setenv "PATH" (mapconcat 'identity mypaths ";") )
+   I recently discovered the =exec-from-shell= package because I was
+   having trouble synchronizing the modifications I had mad to the
+   ~$PATH~ variable in my =.bashrc=. By simply initializing the package
+   the problem seems to be solved.
 
-         (setq exec-path (append mypaths (list "." exec-directory)) )
-
-         ) )
+   #+BEGIN_SRC elisp
+     (when (eq system-type 'gnu/linux)
+       (exec-path-from-shell-initialize))
    #+END_SRC
 
 ** My Directory Location
@@ -1591,10 +1544,10 @@
    #+BEGIN_SRC elisp :tangle no
      (use-package smartscan
        :ensure t
-       :bind ("M-n" . smartscan-symbol-go-forward)
-       ("M-p" . smartscan-symbol-go-backward))
+       :bind (("M-n" . smartscan-symbol-go-forward)
+              ("M-p" . smartscan-symbol-go-backward)))
 
-     (require 'smartscan)
+     ;;; (require 'smartscan)
    #+END_SRC
 
 ** Strip Whitespace on Save

@@ -4,8 +4,8 @@
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
-# #+HTML_HEAD: <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
-#+INFOJS_OPT: path:./Script/org-info.js
-#+INFOJS_OPT: toc:nil ltoc:above view:info mouse:underline buttons:nil
-#+INFOJS_OPT: up:http://orgmode.org/worg/
-#+INFOJS_OPT: home:http://orgmode.org
+#+HTML_HEAD: <style type="text/css">body{ max-width:75%; }</style>
+#+INFOJS_OPT: toc:t ltoc:above view:info mouse:underline buttons:nil path:./Script/org-info.js
+#+HTML_LINK_HOME: Documentation.html
+#+HTML_LINK_UP: sitemap.html
+#+OPTIONS: H:6 toc:2
