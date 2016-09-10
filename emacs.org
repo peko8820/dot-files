@@ -682,7 +682,7 @@
              wg-session-file "~/.emacs.d/workgroups"
              wg-mode-line-display-on nil
              ;; What to do on Emacs exit / workgroups-mode exit?
-             wg-emacs-exit-save-behavior           'save      ; Options: 'save 'ask nil
+             wg-emacs-exit-save-behavior           nil      ; Options: 'save 'ask nil
              wg-workgroups-mode-exit-save-behavior 'save)
        (workgroups-mode 1))
    #+END_SRC
