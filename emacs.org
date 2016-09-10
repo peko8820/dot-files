@@ -227,18 +227,9 @@
 
 * Variables
 
-  Generall setting about me that other packages can use. The biggest
-  problem is guessing my email address based on what computer I am
-  using:
-
-  #+BEGIN_SRC elisp
-    (if (equal "markus" user-login-name)
-        (setq user-mail-address "markussievers88@gmail.com") ; home
-      (setq user-mail-address "markus.sievers@k-ai.at"))     ; work
-  #+END_SRC
-
-  Because I like my time settings to be in English even if I am
-  working on a machine with different language settings is set the
+  Generall setting about me that other packages can use.  Because I
+  like my time settings to be in English even if I am working on a
+  machine with different language settings is set the
   =system-time-locale= variable:
 
   #+BEGIN_SRC elisp
