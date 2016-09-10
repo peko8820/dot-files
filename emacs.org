@@ -172,8 +172,8 @@
      ;; but only at work
      (if (string= user-login-name 'sieversm)
          (setq url-proxy-services
-              '(("http" . "127.0.0.1:3128")
-                ("https" . "127.0.0.1:3128")))
+              '(("http" . ms/proxy-ip)
+                ("https" . ms/proxy-ip)))
       'false)
    #+END_SRC
 
