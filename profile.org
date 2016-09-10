@@ -45,7 +45,7 @@ variables, custom shell functions and similar settings.
   relevant to my work.  The following code will load those
   configurations. For some information on the load order check out
   this [[https://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/][article]].
-  
+
   #+BEGIN_SRC sh
     if [ -n "$BASH_VERSION" ]; then
         # include .bashrc if it exists
@@ -91,7 +91,7 @@ variables, custom shell functions and similar settings.
   The following are the tangled settings. Type: =C-c C-v t=
   to create the script file.
 
-#+PROPERTY: tangle ~/.profile
+#+PROPERTY: tangle no
 #+PROPERTY: comments org
 #+PROPERTY: shebang #!/bin/sh
 #+DESCRIPTION: Global environment variables for all shells
