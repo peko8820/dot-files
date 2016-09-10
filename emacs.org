@@ -2013,9 +2013,9 @@
        ;; Tell git to prompt me for my username/password when using the Open SSH protocol
        (setenv "GIT_ASKPASS" "git-gui--askpass")
        ;; Set the ssh variables for use at work
-       (when (and (eq system-type 'windows-nt) (string= user-login-name 'sieversm))
+       (when (and (eq system-type 'windows-nt) (string= user-login-name ms/username))
          (setenv "SSH_AGENT_PID" "1032")
-         (setenv "SSH_AUTH_SOCK" "C:/Users/sieversm/home/.ssh-socket"))
+         (setenv "SSH_AUTH_SOCK" (concat (getenv "HOME") "/.ssh-socket")))
 
        :bind ("C-x g" . magit-status))
    #+END_SRC
@@ -2032,7 +2032,7 @@
      (use-package magit-gerrit
        :ensure t
        :config
-       (setq magit-gerrit-ssh-creds "sieversm@gerrit.intra.infineon.com"))
+       (setq magit-gerrit-ssh-creds ms/gerrit_id))
    #+END_SRC
 
 ** LaTeX
