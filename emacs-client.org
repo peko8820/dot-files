@@ -227,7 +227,7 @@ Linux, or other systems with a graphical front-end.
   morning or evening when I would rather use the dark theme.
 
   #+BEGIN_SRC elisp
-    (if (and (equal "sieversm" user-login-name) (ms/check-work-hours?))
+    (if (and (equal ms/username user-login-name) (ms/check-work-hours?))
       (ms/change-theme 'color-theme-sanityinc-tomorrow-day
                        'org-src-color-blocks-light)
       (ms/change-theme 'color-theme-sanityinc-tomorrow-night
