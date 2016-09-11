@@ -149,6 +149,53 @@ and tinkering with my configurations.
      )
   #+END_SRC
 
+* Agenda Settings
+
+  I don't want to see things in my agenda that are already done:
+
+  #+BEGIN_SRC emacs-lisp
+    (setq org-agenda-skip-scheduled-if-done t)
+    (setq org-agenda-skip-deadline-if-done t)
+    (setq org-agenda-skip-timestamp-if-done t)
+    (setq org-agenda-todo-ignore-scheduled t)
+    (setq org-agenda-todo-ignore-deadlines t)
+    (setq org-agenda-todo-ignore-timestamp t)
+    (setq org-agenda-todo-ignore-with-date t)
+    (setq org-agenda-start-on-weekday nil) ;; start on current day
+  #+END_SRC
+
+  An I would like to change the color of upcoming deadlines as well:
+
+  #+BEGIN_SRC emacs-lisp
+    (setq org-upcoming-deadline '(:foreground "blue" :weight bold))
+  #+END_SRC
+
+  And lastly, I added a custom view for weekly reviews to my agenda. I
+  took this idea from John Kitchin.
+
+  #+BEGIN_SRC emacs-lisp
+    (add-to-list
+     'org-agenda-custom-commands
+     '("w" "Weekly Review"
+       ( ;; deadlines
+        (tags-todo "+DEADLINE<=\"<today>\""
+                   ((org-agenda-overriding-header "Late Deadlines")))
+        ;; scheduled  past due
+        (tags-todo "+SCHEDULED<=\"<today>\""
+                   ((org-agenda-overriding-header "Late Scheduled")))
+
+        ;; now the agenda
+        (agenda ""
+                ((org-agenda-overriding-header "weekly agenda")
+                 (org-agenda-ndays 7)
+                 (org-agenda-tags-todo-honor-ignore-options t)
+                 (org-agenda-todo-ignore-scheduled nil)
+                 (org-agenda-todo-ignore-deadlines nil)
+                 (org-deadline-warning-days 0)))
+        ;; and last a global todo list
+        (todo "TODO"))))
+  #+END_SRC
+
 * Local Key Bindings
 
   A couple of short-cut keys to make it easier to edit text.
