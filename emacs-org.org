@@ -522,6 +522,36 @@ and tinkering with my configurations.
      (setq org-src-tab-acts-natively t)
    #+END_SRC
 
+** Default source code headers
+
+   Here I am redefining the default values for source code block
+   headers. In particular the results and export settings need some
+   rework. At first I want the results of =emacs-lisp= code blocks to be
+   of type value:
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-babel-default-header-args:emacs-lisp
+           (cons '(:results . "value replace")
+                 (assq-delete-all :results org-babel-default-header-args)))
+   #+END_SRC
+
+   Next, I want to have all my other source code block have the
+   default results format to be ~output~:
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-babel-default-header-args
+           (cons '(:results . "output replace")
+                 (assq-delete-all :results org-babel-default-header-args)))
+   #+END_SRC
+
+   And finally, I want both code and result to be exported by default:
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-babel-default-header-args
+           (cons '(:exports . "both")
+                 (assq-delete-all :exports org-babel-default-header-args)))
+   #+END_SRC
+
 * Source Block Folding
 
   Although there are built-in functions to hide/show all source blocks
