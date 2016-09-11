@@ -157,6 +157,16 @@
      (require 'init-support)
    #+END_SRC
 
+** Local Configurations
+
+   Before we finish, we need to check if there is a local file for us
+   to load and evaluate.  We assume the local file has been tangled
+   and provides the =init-local= key:
+
+   #+BEGIN_SRC elisp
+     (require 'init-local nil t)
+   #+END_SRC
+
 * Package Initialization
 ** Package Manager
 
@@ -2276,15 +2286,6 @@
       (require 'init-server))
    #+END_SRC
 
-** Load up the Local Configuration
-
-   Before we finish, we need to check if there is a local file for us
-   to load and evaluate.  We assume the local file has been tangled
-   and provides the =init-local= key:
-
-   #+BEGIN_SRC elisp
-     (require 'init-local nil t)
-   #+END_SRC
 
    After the first load, we can reload this with a require:
 
