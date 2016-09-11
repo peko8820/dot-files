@@ -678,7 +678,7 @@
      (use-package workgroups2
        :ensure t
        :init
-       (setq wg-prefix-key (kbd "C-c a")
+       (setq wg-prefix-key (kbd "C-c w")
              wg-session-file "~/.emacs.d/workgroups"
              wg-mode-line-display-on nil
              ;; What to do on Emacs exit / workgroups-mode exit?

@@ -52,6 +52,7 @@ and tinkering with my configurations.
                     (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
                               nil))))) ;;)
 
+      (define-key org-mode-mat (kbd "C-c a")   'org-agenda)
       (define-key org-mode-map (kbd "M-C-n") 'org-end-of-item-list)
       (define-key org-mode-map (kbd "M-C-p") 'org-beginning-of-item-list)
       (define-key org-mode-map (kbd "M-C-u") 'outline-up-heading)
