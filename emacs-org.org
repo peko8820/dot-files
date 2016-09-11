@@ -52,7 +52,7 @@ and tinkering with my configurations.
                     (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
                               nil))))) ;;)
 
-      (define-key org-mode-mat (kbd "C-c a")   'org-agenda)
+      (define-key org-mode-map (kbd "C-c a")   'org-agenda)
       (define-key org-mode-map (kbd "M-C-n") 'org-end-of-item-list)
       (define-key org-mode-map (kbd "M-C-p") 'org-beginning-of-item-list)
       (define-key org-mode-map (kbd "M-C-u") 'outline-up-heading)
@@ -152,9 +152,16 @@ and tinkering with my configurations.
 
 * Agenda Settings
 
+  First we need to require the org-agenda module. Otherwise we will
+  not be able to add to the ~org-agenda-custom-commands~ list!
+
+  #+BEGIN_SRC elisp
+    (require 'org-agenda)
+  #+END_SRC
+
   I don't want to see things in my agenda that are already done:
 
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC elisp
     (setq org-agenda-skip-scheduled-if-done t)
     (setq org-agenda-skip-deadline-if-done t)
     (setq org-agenda-skip-timestamp-if-done t)
@@ -167,14 +174,14 @@ and tinkering with my configurations.
 
   An I would like to change the color of upcoming deadlines as well:
 
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC elisp
     (setq org-upcoming-deadline '(:foreground "blue" :weight bold))
   #+END_SRC
 
   And lastly, I added a custom view for weekly reviews to my agenda. I
   took this idea from John Kitchin.
 
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC elisp
     (add-to-list
      'org-agenda-custom-commands
      '("w" "Weekly Review"
@@ -505,15 +512,15 @@ and tinkering with my configurations.
 
    * =<el= for Emacs Lisp
 
-     #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC elisp
        (add-to-list 'org-structure-template-alist
-                    '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"
+                    '("el" "#+BEGIN_SRC elisp\n?\n#+END_SRC"
                       "<src lang=\"emacs-lisp\">\n?\n</src>"))
      #+END_SRC
 
    * =<sh= for shell
 
-     #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC elisp
        (add-to-list 'org-structure-template-alist
                     '("sh" "#+BEGIN_SRC sh\n?\n#+END_SRC"
                       "<src lang=\"shell\">\n?\n</src>"))
@@ -521,21 +528,21 @@ and tinkering with my configurations.
 
    * =<ca= for caption
 
-     #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC elisp
        (add-to-list 'org-structure-template-alist
                     '("ca" "#+CAPTION: " ""))
      #+END_SRC
 
    * =<tn= for table name
 
-     #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC elisp
        (add-to-list 'org-structure-template-alist
                     '("tn" "#+TABLENAME: " ""))
      #+END_SRC
 
    * =<n= for name
 
-     #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC elisp
        (add-to-list 'org-structure-template-alist
                     '("n" "#+NAME: " ""))
      #+END_SRC
@@ -555,7 +562,7 @@ and tinkering with my configurations.
    happen. Therefore, I rather evaluate the source code blocks and
    then do the export manually afterwards.
 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC elisp
      (setq org-export-babel-evaluate nil)
    #+END_SRC
 
@@ -574,11 +581,11 @@ and tinkering with my configurations.
 
    Here I am redefining the default values for source code block
    headers. In particular the results and export settings need some
-   rework. At first I want the results of =emacs-lisp= code blocks to be
+   rework. At first I want the results of =elisp= code blocks to be
    of type value:
 
-   #+BEGIN_SRC emacs-lisp
-     (setq org-babel-default-header-args:emacs-lisp
+   #+BEGIN_SRC elisp
+     (setq org-babel-default-header-args:elisp
            (cons '(:results . "value replace")
                  (assq-delete-all :results org-babel-default-header-args)))
    #+END_SRC
@@ -586,7 +593,7 @@ and tinkering with my configurations.
    Next, I want to have all my other source code block have the
    default results format to be ~output~:
 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC elisp
      (setq org-babel-default-header-args
            (cons '(:results . "output replace")
                  (assq-delete-all :results org-babel-default-header-args)))
@@ -594,7 +601,7 @@ and tinkering with my configurations.
 
    And finally, I want both code and result to be exported by default:
 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC elisp
      (setq org-babel-default-header-args
            (cons '(:exports . "both")
                  (assq-delete-all :exports org-babel-default-header-args)))
