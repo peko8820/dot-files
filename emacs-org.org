@@ -438,6 +438,40 @@ and tinkering with my configurations.
   Just remember, at some point to hit =C-c C-w= to /refile/ that note
   in the appropriate place.
 
+* Presentations
+
+  I alternated between the browser-based presentation tool, [[https://github.com/hakimel/reveal.js/][reveal.js]]
+  and staying in Emacs with [[https://github.com/takaxp/org-tree-slide][org-tree-slide]].
+
+** Reveal
+
+   Generate presentations from my org-mode files using
+   [[https://github.com/yjwen/org-reveal][org-reveal]]. Just download and make the results available to the
+   HTML output:
+
+   #+BEGIN_SRC elisp
+     (use-package ox-reveal
+        :init
+        (setq org-reveal-root (concat "file://" (getenv "HOME") "/Public/js/reveal.js"))
+        (setq org-reveal-postamble "Markus Sievers"))
+   #+END_SRC
+
+** Tree Slide
+
+   A quick way to display an org-mode file is using [[https://github.com/takaxp/org-tree-slide][org-tree-slide]].
+
+   * org-tree-slide-move-next-tree (C->)
+   * org-tree-slide-move-previous-tree (C-<)
+   * org-tree-slide-content (C-x s c)
+
+   #+BEGIN_SRC elisp
+     (use-package org-tree-slide
+        :ensure t
+        :init
+        (setq org-tree-slide-skip-outline-level 4)
+        (org-tree-slide-simple-profile))
+   #+END_SRC
+
 * Literate Programming
 
   The trick to literate programming is in the [[http://orgmode.org/worg/org-contrib/babel/intro.html][Babel project]], which
