@@ -2223,7 +2223,6 @@
    that entry in the same frame, while following a “notes” link in
    another org-mode file (or using my new reftex search addition) will
    open this file in a new frame and jump to the entry.
-
 ** Org-Ref
 
    I don't know if I should have put this into my [[file:emacs-org.org][org-mode init]]
@@ -2260,6 +2259,23 @@
                (lambda (fpath)
                  (start-process "open" "*open*" "open" fpath)))))
        )
+   #+END_SRC
+
+** Graphviz
+
+   Install the [[http://www.graphviz.org/][Graphviz]] and [[http://plantuml.sourceforge.net/download.html][PlantUML]] projects using the dnf package
+   manager:
+
+   #+BEGIN_SRC sh :tangle no
+     sudo dnf install graphviz
+     sudo dnf install plantuml
+   #+END_SRC
+
+   Load the [[http://ppareit.github.com/graphviz-dot-mode/][mode for Graphviz]]:
+
+   #+BEGIN_SRC elisp
+     (use-package graphviz-dot-mode
+        :ensure t)
    #+END_SRC
 
 * Applications
