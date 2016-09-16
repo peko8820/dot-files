@@ -2143,6 +2143,35 @@
      )
    #+END_SRC
 
+   I use LaTeX and the Tikz/PGFplots package a lot to create beautiful
+   drawing.  I used to compile the =.tex= file, go to the terminal and
+   then use either ImageMagick or Ghostscript to create an image in
+   the desired format. Since this is Emacs EVERYTHING can be
+   customized.  The following code will add the option to create a PNG
+   file from the PDF with either ImageMagick or Ghostscript depending
+   on the system I am on:
+
+   #+BEGIN_SRC elisp
+     (cond ((eq system-type 'gnu/linux)
+            (add-to-list
+             'TeX-command-list
+             '("PNG"
+               "convert %s.pdf %s.png"
+               TeX-run-command
+               nil                              ; ask for confirmation
+               t                                ; active in all modes
+               :help "Convert PDF to PNG")))
+           ((eq system-type 'windows-nt)
+            (add-to-list
+             'TeX-command-list
+             '("PNG"
+               "gswin64c -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=png16m -r600 -sOutputFile#%s.png -f %s.pdf"
+               TeX-run-command
+               nil                              ; ask for confirmation
+               t                                ; active in all modes
+               :help "Convert PDF to PNG"))))
+   #+END_SRC
+
 ** RefTeX
 
    Throughout the years I have read quite a few papers.  I use
