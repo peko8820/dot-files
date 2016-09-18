@@ -1,0 +1,55 @@
+# -*- mode: snippet -*-
+# name: Standalone
+# key: Standalone
+# --
+\documentclass[border=1pt]{standalone}
+
+\usepackage{
+  tikz,
+  amsmath,
+  amssymb,
+  bm,
+  color,
+  pgfplots,
+}
+
+${1: $$(yas/choose-value '("" "\\\\usepackage[europeanresistors,europeaninductors]{circuitikz}"))}
+
+\usetikzlibrary{
+  shapes,
+  arrows,
+  calc,
+  intersections,
+  patterns,
+  positioning,
+  3d,
+}
+
+\usepgfplotslibrary{units}
+
+% Non-serif font for normal text
+\renewcommand*{\familydefault}{\sfdefault}
+
+% Backward compatibility
+\pgfplotsset{compat = 1.12}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\resizebox{${2:8cm}}{${3:!}}{
+  \begin{tikzpicture}
+
+    $0
+
+  \end{tikzpicture}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
