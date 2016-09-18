@@ -223,13 +223,15 @@ Linux, or other systems with a graphical front-end.
           t))
   #+END_SRC
 
-  Now I can check if I am logged in at work and if it is early in the
-  morning or evening when I would rather use the dark theme.
+  I used to have my starting theme depend on whether I am at work /and/
+  what time it is. Since I try to keep things consistent now I have
+  decided to only check for the time.  Especially since I can always
+  change it with =f9 t=.
 
   #+BEGIN_SRC elisp
-    (if (and (equal ms/username user-login-name) (ms/check-work-hours?))
-      (ms/change-theme 'color-theme-sanityinc-tomorrow-day
-                       'org-src-color-blocks-light)
+    (if (ms/check-work-hours?)
+        (ms/change-theme 'color-theme-sanityinc-tomorrow-day
+                         'org-src-color-blocks-light)
       (ms/change-theme 'color-theme-sanityinc-tomorrow-night
                        'org-src-color-blocks-dark))
   #+END_SRC
