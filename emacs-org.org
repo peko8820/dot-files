@@ -528,6 +528,14 @@ and tinkering with my configurations.
                       "<src lang=\"python\">\n?\n</src>"))
      #+END_SRC
 
+   * =<ppp= for Python with python3 as executing command
+
+     #+BEGIN_SRC elisp
+       (add-to-list 'org-structure-template-alist
+                    '("ppp" "#+BEGIN_SRC python :python python3\n?\n#+END_SRC"
+                      "<src lang=\"python\">\n?\n</src>"))
+     #+END_SRC
+
    * =<por= for Python with raw output
 
      #+BEGIN_SRC elisp
