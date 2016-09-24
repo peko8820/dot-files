@@ -1,0 +1,66 @@
+#+TITLE:  Shell Profile
+#+AUTHOR: Markus Sievers
+#+EMAIL:  markussievers88@gmail.com
+#+DATE:   2016 Sep 24
+
+Common functions and aliases that I can share among all my computers.
+This file is written to =$HOME/.bash.all.rc= and should be called
+from =.bashrc= and/or =.zshrc=, via:
+
+#+BEGIN_SRC sh :tangle no
+  if [ -f "$HOME/.sh-funcs.sh" ]; then
+    source "$HOME/.sh-funcs.sh"
+  fi
+#+END_SRC
+
+According to [[http://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/][this article]]:
+
+  - For bash, put stuff in =~/.bashrc=, and make =~/.profile= source it.
+  - For zsh, put stuff in =~/.zshrc=, which is always executed.
+
+Machine-specific gunk goes in the standard =.bashrc= and =~/.zshrc= files,
+and global variables are stored in =.profile= and =.zsh_profile=.
+
+* Technical Gunk
+
+  The following are the tangled settings. Type: =C-c C-v t=
+  to create the script file.
+
+#+PROPERTY: tangle ~/.sh-funcs.sh
+#+PROPERTY: comments org
+#+PROPERTY: shebang #!/bin/sh
+#+DESCRIPTION: Aliases and functions shareable between Bash and Zsh
+
+* Editor
+
+  Another wrapper around =emacsclient= but this is a blocking
+  approach suitable for being set to the =EDITOR= variable.
+
+#+BEGIN_SRC sh
+  alias e='emacsclient -q -a emacs'
+#+END_SRC
+
+  It is unclear whether =e= is a good version for the =EDITOR=
+  variable. According to the /info/ docs, we should do something like:
+
+#+BEGIN_EXAMPLE
+  EDITOR="emacsclient"
+#+END_EXAMPLE
+
+* Diff Files
+
+  My favorite diff tool is the =ediff= tool in Emacs, and little
+  function (taken from [[http://defunitive.wordpress.com/2011/07/23/invoking-emacs-ediff-from-the-command-line/][this blog post]]) allows me to use it from the
+  command line.
+
+#+BEGIN_SRC sh
+  function ediff() {
+      if [ -z "$2" ]
+      then
+          echo "USAGE: ediff <FILE 1> <FILE 2>"
+      else
+          # The --eval flag takes lisp code and evaluates it with EMACS
+          emacsclient -c --eval "(ediff-files \"$1\" \"$2\")"
+      fi
+  }
+#+END_SRC
