@@ -6,6 +6,34 @@
 This org file generates my =.profile=, which contains environment
 variables, custom shell functions and similar settings.
 
+* Fuck
+
+  [[https://github.com/nvbn/thefuck][TheFuck]] project seems fun and useful. Works better on Linux than on
+  the Mac, but it still seems good:
+
+  #+BEGIN_EXAMPLE
+~ $ puthon
+-bash: puthon: command not found
+~ $ fuck
+python [enter/↑/↓/ctrl+c]
+Python 2.7.10 (default, Oct 23 2015, 18:05:06)
+[GCC 4.2.1 Compatible Apple LLVM 7.0.0 (clang-700.0.59.5)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> ^D
+  #+END_EXAMPLE
+
+  We just need to install it with dnf:
+
+  #+BEGIN_SRC sh :tangle no
+    sudo dnf install thefuck
+  #+END_SRC
+
+  And then include it in this =.profile= file:
+
+  #+BEGIN_SRC sh
+    eval "$(thefuck --alias)"
+  #+END_SRC
+
 * Path
 
    We want to add these directories, but only if they exist. This
@@ -26,7 +54,6 @@ variables, custom shell functions and similar settings.
   PATH=$PATH:$OLDPATH
 #+END_SRC
 
-
 * Emacs
 
   Set =EDITOR= to start up an =emacsclient=, but do that from the one
@@ -37,7 +64,104 @@ variables, custom shell functions and similar settings.
     export EDITOR=/usr/bin/emacsclient
   #+END_SRC
 
+* Global Aliases
 
+  I dislike =more=, especially since =less= is now really sweet.
+
+#+BEGIN_SRC sh
+  alias more=less
+#+END_SRC
+
+* Python
+
+  Check out my [[file:emacs-python.org][python settings]] for installing [[https://github.com/yyuu/pyenv-virtualenv][python virtual]]
+  environments. To initialize the project with the following code:
+
+  #+BEGIN_SRC sh
+    export PYENV_ROOT="${HOME}/.pyenv"
+
+    if [ -d "${PYENV_ROOT}" ]; then
+        export PATH="${PYENV_ROOT}/bin:${PATH}"
+        eval "$(pyenv init -)"
+    fi
+  #+END_SRC
+
+  But before we can use the cool features of pyenv we need to install
+  a few dependencies:
+
+  #+BEGIN_SRC sh :tangle no
+    dnf install zlib-devel bzip2 bzip2-devel readline-devel\
+        sqlite sqlite-devel openssl-devel
+#+END_SRC
+
+  Now, we can install a particular version of Python:
+
+  #+BEGIN_SRC sh :tangle no
+    pyenv install 3.5.1
+    pyenv global 3.5.1
+  #+END_SRC
+
+  Use a particular Python version with:
+
+  #+BEGIN_SRC sh :tangle no
+    pyenv virtualenv $NAME    # Creates the virtual env
+    pyenv activate $NAME      # Choose the virtual env
+    pyenv deactivate          # Stops using it
+  #+END_SRC
+
+  While in the root directory of a /project/, automatically use the
+  appropriate Python version with the =local= command (do this just
+  once):
+
+  #+BEGIN_SRC sh :tangle no
+    pyenv local <virtualenv or version>
+  #+END_SRC
+
+  When entering this directory, the chosen virtualenv or Python
+  version will be activated automatically. The file that is created
+  and specifies the appropriate environment is named =.python-version=
+  (add this to git).
+
+  Enhance =pyenv= with the [[https://github.com/yyuu/pyenv-virtualenv][pyenv-virtualenv]] plugin. If installed, this
+  code initializes it:
+
+  #+BEGIN_SRC sh
+    if which pyenv-virtualenv-init > /dev/null
+    then
+        eval "$(pyenv virtualenv-init -)"
+    fi
+  #+END_SRC
+
+  Create a virtual environment with:
+
+  #+BEGIN_SRC sh :tangle no
+    pyenv virtualenv 3.5.1 lp-demo
+  #+END_SRC
+
+  List the created virtual environments:
+
+  #+BEGIN_SRC sh :tangle no
+    pyenv virtualenvs
+  #+END_SRC
+
+  It seems that the =local= command may make this a moot point,
+  activate a virtual environment manually with:
+
+  #+BEGIN_SRC sh :tangle no
+    pyenv activate <name>
+    pyenv deactivate
+  #+END_SRC
+
+  In other words, this =pyenv= project subsumes both [[https://github.com/kennethreitz/autoenv][autoenv]] and
+  [[http://virtualenvwrapper.readthedocs.org/en/latest/index.html][virtualenvwrapper]]. See [[file:emacs-python.org::*Virtual%20Environments][Virtual Environments]] in the Python Emacs
+  setup for details.
+
+  I like the prompt changing feature that will be removed from some
+  future release. Let's turn it on.
+
+  #+BEGIN_SRC sh
+    export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+  #+END_SRC
 
 * Bashrc
 
@@ -67,13 +191,80 @@ variables, custom shell functions and similar settings.
     }
   #+END_SRC
 
+  There are a bunch of nice projects to provide additional information
+  on the prompt line (e.g. =_git_ps1=). But to keep my settings portable
+  I use the following simple helper function, which will then be
+  called in me PS1 assignment:
+
+  #+BEGIN_SRC sh
+    function parse_git_branch {
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+    }
+  #+END_SRC
+
+  Better approach to displaying the current path, is to only display
+  the first or second directory name ... any maybe the name of the Git
+  project. Holy hell, so many exceptions and so few patterns...
+
+  #+BEGIN_SRC sh
+    function prompt_dir {
+        PWD=$(pwd)
+
+        if [[ $PWD == $HOME ]]
+        then
+            echo -n '~'
+        elif [[ $PWD == $HOME/Work ]]
+        then
+            echo -n '~/Work'
+
+             # In a Git project?
+        elif PRJ=$(git rev-parse --show-toplevel 2>/dev/null)
+        then
+            name=$(basename $PRJ)
+            rest=$(sed "s|$PRJ||" <<< $PWD)
+            echo -n "$(sed -e 's/ / /g' <<< [$name])$(_trim_dir $rest)"
+
+             # In work-related directory...
+        elif [[ $PWD == $HOME/Work/* ]]
+        then
+            name=$(sed -E "s|$HOME/Work/([[:alnum:]_-]+).*|\1|; s/ / /g" <<< $PWD)
+            base=$(basename $PWD)
+            intr=$(basename `dirname $PWD`)
+
+            if [[ $name == $base ]]
+            then
+                echo -n "W/$name"
+            elif [[ $intr == $name ]]
+            then
+                echo -n "W/$name/$base"
+            else
+                echo -n "W/$name/../$base"
+            fi
+
+             # In a home directory
+        elif [[ $PWD == $HOME/* ]]
+        then
+            if [[ $(basename `dirname $PWD`) == $(basename $HOME) ]]
+            then
+                echo -n "~/$(basename $PWD)"
+            else
+                echo -n "~/$(_trim_dir $PWD)"
+            fi
+        else
+            _trim_dir $PWD
+        fi
+    }
+  #+END_SRC
+
+
+
   I wanna add everything to my command line prompt: the Git
   repository, the Python virtual environment (in white), the Ruby
   Virtual Environment (in red) ... of course, now I have no room to
   type commands. ;-)
 
   #+BEGIN_SRC sh
-    export PS1='\[\e[1;34m\]$(prompt_dir)\[\e[1;32m\]$(_mygit_ps1)\[\e[0m\] \$ '
+    export PS1='\[\e[1;34m\]$(prompt_dir)\[\e[1;32m\]$(parse_git_branch) \[\e[1;31m\]→ \[\e[0m\]'
 
     if [ -d ~/.rvm ]
     then
@@ -83,15 +274,35 @@ variables, custom shell functions and similar settings.
 
   Good thing I seldom use a shell.
 
+* My Function Collection
+
+  Load up my [[file:sh-functions.org][shared functions]]. These can be shared with Bash, Fish and
+  Zshell.
+
+  #+BEGIN_SRC sh
+    if [ -f $HOME/.sh-funcs.sh ]
+    then
+        . $HOME/.sh-funcs.sh
+    fi
+  #+END_SRC
+
+  Host-specific values, are stored in a separate profile.
+
+  #+BEGIN_SRC sh
+    if [ -x $HOME/.profile-local ]
+    then
+      . $HOME/.profile-local
+    fi
+  #+END_SRC
 
 * Technical Gunk
 
   Anything else that is interesting, will be set up in more
-  either more shell-specific files, or in [[file:sh-functions.org][Shell Functions]] file.
-  The following are the tangled settings. Type: =C-c C-v t=
-  to create the script file.
+  shell-specific files, or in a [[file:sh-functions.org][Shell Functions]] file.  The following are
+  the tangled settings. Type: =C-c C-v t= to create the script file.
 
-#+PROPERTY: tangle no
+#+PROPERTY: tangle ~/.profile
 #+PROPERTY: comments org
 #+PROPERTY: shebang #!/bin/sh
+#+PROPERTY: results silent
 #+DESCRIPTION: Global environment variables for all shells

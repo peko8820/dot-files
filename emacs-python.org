@@ -16,22 +16,82 @@ now I will give the Jedi implementation a try...
   environments makes a local copy of all necessary python libraries
   preventing you from running into that problem.
 
-  Because for now I am more interested in small code snippets that do
-  very dedicated stuff I will leave this item as TODO for later.
+  All development for Python is done in [[http://docs.python-guide.org/en/latest/dev/virtualenvs/][virtual environments]].
+  However, this is a monstrous collection of layers, so I am now using
+  [[https://github.com/yyuu/pyenv][pyenv]] for all my Pythonic virtualization needs, as it does a better
+  job of both [[http://virtualenvwrapper.readthedocs.org/en/latest/index.html][virtualenvwrapper]] and [[https://github.com/kennethreitz/autoenv][autoenv]]. Since we are on Linux,
+  let’s do it neckbeard-style:
+
+  #+BEGIN_SRC sh
+    git clone https://github.com/yyuu/pyenv.git ~/.pyenv
+    git clone https://github.com/yyuu/pyenv-virtualenv.git ~/.pyenv/plugins/pyenv-virtualenv
+  #+END_SRC
+
+  Next, use pip to install virtualenv globally.
+
+  #+BEGIN_SRC sh
+    sudo pip install virtualenv
+  #+END_SRC
+
+  And use them by configuring our [[file:profile.org::*Python][.profile]].
+
+  For a given /project/, we first install a particular Python version
+  for it using the =pyenv= command (which must be done prior to
+  starting a new virtual environment with the =mkvirtualenv= command):
+
+  #+BEGIN_SRC sh
+    pyenv install 3.5.1    # pyenv versions to see what is installed
+  #+END_SRC
+
+  Get path to this built/installed executable:
+
+  #+BEGIN_SRC sh
+    pyenv local 3.5.1
+    pyenv which python
+  #+END_SRC
+
+  Each project (environment) will be *named*, and the version of
+  Python can be specified based on the results of the =pyenv which=
+  command above, for instance:
+
+  #+BEGIN_SRC sh
+    pyenv virtualenv 3.5.1 lab
+  #+END_SRC
+
+  And to use the environment in a shell, issue:
+
+  #+BEGIN_SRC sh
+    pyenv activate lab
+  #+END_SRC
+
+  Or, better yet, use the =local= option to make that environment
+  active whenever you enter that directory:
+
+  #+BEGIN_SRC sh
+    pyenv local lab
+  #+END_SRC
+
+  Now, commands like =pip= should be isolated to that virtual environment
+  as well as the needed version.
+
+  The [[http://elpy.readthedocs.org/en/latest/concepts.html#virtual-envs][Elpy Project]] deals with the =virtualenvwrapper=, so call function,
+  =M-x pyvenv-workon= to activate a virtual environment
+  (see [[http://elpy.readthedocs.org/en/latest/concepts.html#virtual-envs][these instructions]]).
 
 * Basics
 
   WSGI files are just Python files in disguise, so tell them to use
-  the Python environment.   Careful with the tabs, my friend.
+  the Python environment. Careful with the tabs, my friend.
 
   #+BEGIN_SRC elisp
     (use-package python
       :mode ("\\.py\\'" . python-mode)
-            ("\\.wsgi$" . python-mode)
-      :interpreter ("python" . python-mode)
+      ("\\.wsgi$" . python-mode)
+      :interpreter ("python3" . python-mode)
 
       :init
       (setq-default indent-tabs-mode nil)
+      (setq-default py-python-command "python3")
 
       :config
       (setq python-indent 4)
