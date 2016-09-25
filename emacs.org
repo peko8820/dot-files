@@ -66,6 +66,22 @@
 
 * General Settings
 
+** Defaults
+
+   Although this would fall under the [[Variables]] section I am actually
+   loading the local settings defined in my [[file:emacs-local.org][local init]] file. But since
+   that file is not part of my git repository I define a the necessary
+   variables that I use throughout the initialization to have
+   defaults available.
+
+   #+BEGIN_SRC elisp
+     (defvar ms/username nil
+       "Workstation specific username which needs to be defined in the local settings")
+
+     (defvar ms/proxy-ip nil "Proxy IP address used by my office workstation")
+     (defvar ms/gerrit_id nil "Gerrit identification for my office workstation")
+   #+END_SRC
+
 ** Setting the input format
 
    This is a short but nonetheless import one. To use all of the
