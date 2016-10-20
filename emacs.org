@@ -196,11 +196,11 @@
    #+BEGIN_SRC elisp
      ;; Make sure that we can get through the proxy at work,
      ;; but only at work
-     (if (string= user-login-name 'sieversm)
+     (if ms/proxy-ip
          (setq url-proxy-services
-              '(("http" . ms/proxy-ip)
-                ("https" . ms/proxy-ip)))
-      'false)
+               '(("http" . ms/proxy-ip)
+                 ("https" . ms/proxy-ip)))
+       'false)
    #+END_SRC
 
    Now I can get to all the juicy stuff:

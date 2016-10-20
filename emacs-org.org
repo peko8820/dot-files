@@ -702,6 +702,20 @@ and tinkering with my configurations.
     (define-key org-mode-map (kbd "C-c t") 'org-toggle-blocks)
   #+END_SRC
 
+* Latex Settings
+
+  There are quite a few latex settings I have. I plan to implement the
+  latex export settings using the example of John Kitchin.  As of now
+  I wanted to have the SI unit package available whenever I render
+  in-line latex equations inside my orgmode files.
+
+  #+BEGIN_SRC elisp
+    (require 'ox-latex)
+
+    (add-to-list 'org-latex-packages-alist '("" "siunitx"))
+  #+END_SRC
+
+
 * Technical Artifacts
 
   Need to provide the =init-org-mode= so that I can require this
