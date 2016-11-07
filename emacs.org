@@ -198,8 +198,8 @@
      ;; but only at work
      (if ms/proxy-ip
          (setq url-proxy-services
-               '(("http" . ms/proxy-ip)
-                 ("https" . ms/proxy-ip)))
+               `(("http" . ,ms/proxy-ip)
+                 ("https" . ,ms/proxy-ip)))
        'false)
    #+END_SRC
 
