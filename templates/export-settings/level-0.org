@@ -1,11 +1,10 @@
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:t tex:t
-#+HTML_DOCTYPE: xhtml-strict
+#+HTML_DOCTYPE: <!DOCTYPE html>
 #+HTML_CONTAINER: div
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
-#+HTML_HEAD: <style type="text/css">body{ max-width:75%; }</style>
-#+INFOJS_OPT: toc:t ltoc:above view:info mouse:underline buttons:nil path:./Script/org-info.js
-#+HTML_LINK_HOME: Documentation.html
+# #+INFOJS_OPT: toc:t ltoc:above view:info mouse:underline buttons:nil path:./Script/org-info.js
+# #+HTML_LINK_HOME: Documentation.html
 #+HTML_LINK_UP: sitemap.html
-#+OPTIONS: H:6 toc:2
+#+OPTIONS: H:4 toc:2
