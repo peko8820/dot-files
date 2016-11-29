@@ -9,6 +9,12 @@ with Emacs and have started to spend countless hours on customizing
 and tinkering with my configurations.
 
 * Initial Settings
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   Initialization of Org Mode by hooking it into YASnippets, and other settings.
 
@@ -154,6 +160,12 @@ and tinkering with my configurations.
    #+END_SRC
 
 * Calendar Settings
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   There are a few calendar settings I need to customize from the
   =org-export-icalendar= group to ensure that the locally created events
@@ -170,6 +182,12 @@ and tinkering with my configurations.
   #+END_SRC
 
 * Agenda Settings
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   First we need to require the org-agenda module. Otherwise we will
   not be able to add to the ~org-agenda-custom-commands~ list!
@@ -224,6 +242,12 @@ and tinkering with my configurations.
   #+END_SRC
 
 * Local Key Bindings
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   A couple of short-cut keys to make it easier to edit text.
 
@@ -253,6 +277,12 @@ and tinkering with my configurations.
   #+END_SRC
 
 * Color and Display
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   Displaying the headers using various bullets are nice for my presentations.
 
@@ -279,6 +309,12 @@ and tinkering with my configurations.
   the source code during literate programming mode.
 
 * Journaling
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   Didn't realize that [[http://www.emacswiki.org/emacs/OrgJournal][org-journal]] essentially does what I have been
   doing by hand. With a little customization, I don't have to change
@@ -415,6 +451,12 @@ and tinkering with my configurations.
    #+END_SRC
 
 * Auto Note Capturing
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   Let's say you were in the middle of something, but would like to
   /take a quick note/, but without affecting the file you are
@@ -458,6 +500,12 @@ and tinkering with my configurations.
   in the appropriate place.
 
 * Presentations
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   I alternated between the browser-based presentation tool, [[https://github.com/hakimel/reveal.js/][reveal.js]]
   and staying in Emacs with [[https://github.com/takaxp/org-tree-slide][org-tree-slide]].
@@ -492,6 +540,12 @@ and tinkering with my configurations.
    #+END_SRC
 
 * Literate Programming
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   The trick to literate programming is in the [[http://orgmode.org/worg/org-contrib/babel/intro.html][Babel project]], which
   allows org-mode to not only interpret source code blocks, but
@@ -669,6 +723,12 @@ and tinkering with my configurations.
    #+END_SRC
 
 * Source Block Folding
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   Although there are built-in functions to hide/show all source blocks
   I took the inspiration from [[http://emacs.stackexchange.com/questions/7211/collapse-src-blocks-in-org-mode-by-default][this]] blog post that wraps the hide/show
@@ -703,6 +763,12 @@ and tinkering with my configurations.
   #+END_SRC
 
 * Latex Settings
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   There are quite a few latex settings I have. I plan to implement the
   latex export settings using the example of John Kitchin.  As of now
@@ -715,8 +781,13 @@ and tinkering with my configurations.
     (add-to-list 'org-latex-packages-alist '("" "siunitx"))
   #+END_SRC
 
-
 * Technical Artifacts
+  :PROPERTIES:
+  :header-args: :results silent :eval no-export
+  :header-args+: sh :tangle no
+  :header-args+: :tangle ~/.emacs.d/elisp/init-org-mode.el
+  :comments: org
+  :END:
 
   Need to provide the =init-org-mode= so that I can require this
   package.
