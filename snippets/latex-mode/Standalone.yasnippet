@@ -11,6 +11,7 @@
   bm,
   color,
   pgfplots,
+  % pagecolor,
 }
 
 ${1: $$(yas/choose-value '("" "\\\\usepackage[europeanresistors,europeaninductors]{circuitikz}"))}
@@ -31,7 +32,7 @@ ${1: $$(yas/choose-value '("" "\\\\usepackage[europeanresistors,europeaninductor
 \renewcommand*{\familydefault}{\sfdefault}
 
 % Backward compatibility
-\pgfplotsset{compat = 1.12}
+\pgfplotsset{compat = 1.14}
 
 \begin{document}
 
@@ -48,6 +49,10 @@ ${1: $$(yas/choose-value '("" "\\\\usepackage[europeanresistors,europeaninductor
 \definecolor{magenta}{RGB}{211,54,130}
 \definecolor{violet}{RGB}{108,113,196}
 \definecolor{cyan}{RGB}{42,161,152}
+
+\definecolor{base3}{RGB}{253,246,227}
+
+% \pagecolor{base3}
 
 \resizebox{${2:8cm}}{${3:!}}{
   \begin{tikzpicture}
