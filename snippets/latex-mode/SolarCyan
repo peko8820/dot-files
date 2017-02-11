@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: SolarCyan
+# key: SolarCyan
+# --
+\definecolor{cyan}{RGB}{42,161,152}
