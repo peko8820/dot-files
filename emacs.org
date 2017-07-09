@@ -79,6 +79,8 @@
 
      (defvar ms/proxy-ip nil "Proxy IP address used by my office workstation")
      (defvar ms/gerrit_id nil "Gerrit identification for my office workstation")
+
+     (defvar ms/local-org-capture-templates nil "Empty list for locally defined org-capture list items")
    #+END_SRC
 
 ** Setting the input format
@@ -1479,7 +1481,7 @@
    #+END_SRC
 
 * Miscellaneous Settings
-** COMMENT Line Numbers
+** Line Numbers
 
    Turn =linum-mode= on/off with =Super-K=.  However, I
    turn this on automatically for programming modes.
