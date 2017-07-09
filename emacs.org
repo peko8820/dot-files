@@ -14,13 +14,12 @@
 
 ** Emacs Executable
 
-   If you want to install Emacs on Ubuntu all you have to do is run
-   this from the terminal to install the pre-compiled version
-   included in the Ubuntu repository:
+   Quite a while ago now I switched to fedora. Although Emacs is
+   pre-installed you can updated and install it through the dnf system:
 
    #+BEGIN_SRC sh :tangle no
-     sudo apt-get update
-     sudo apt-get install emacs -y
+     sudo dnf update -y
+     sudo dnf install emacs -y
    #+END_SRC
 
    You may, of course, get the source code and compile it
@@ -107,7 +106,7 @@
    #+END_SRC
 
    I recently discovered the =exec-from-shell= package because I was
-   having trouble synchronizing the modifications I had mad to the
+   having trouble synchronizing the modifications I had made to the
    ~$PATH~ variable in my =.bashrc=. By simply initializing the package
    the problem seems to be solved.
 
@@ -215,7 +214,7 @@
      (package-initialize)
    #+END_SRC
 
-   These is also the *marmalade* repository, but I have only bad
+   These is also the *marmalade* repository, but I have heard only bad
    things about it. Thus I am not including it here. If you want to
    add the following to the previous archive list:
 
@@ -273,7 +272,7 @@
        :ensure t)
    #+END_SRC
 
-   And now I will add a few default settings of my own. First, I like
+   And now I will add a few default settings of my own. First, I like it
    when emacs asks me if I want to do something but /y/ oder /n/ is enough
    as an answer!
 
@@ -337,14 +336,14 @@
   some of the essential stuff:
 
   #+BEGIN_SRC elisp
-    (setq initial-scratch-message "") ;; Uh, I know what Scratch is for
+    (setq initial-scratch-message "") ;; Uhh, I know what Scratch is for
     (setq visible-bell t)             ;; Get rid of the beeps
 
     (when (window-system)
       (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
       (when (fboundp 'horizontal-scroll-bar-mode)
         (horizontal-scroll-bar-mode -1))
-      (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+      (scroll-bar-mode -1))            ;; Scrollbars are a waste of screen estate
   #+END_SRC
 
 ** Mode Line
@@ -384,7 +383,9 @@
    #+BEGIN_SRC elisp
      (use-package fill
        :bind ("C-c T f" . auto-fill-mode)
-       :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
+       :init
+       (add-hook 'org-mode-hook 'turn-on-auto-fill)
+       (set-fill-column 100)
        :diminish auto-fill-mode)
    #+END_SRC
 
@@ -694,7 +695,7 @@
             ("C-x C-b" . kpm-list))
    #+END_SRC
 
-** Controlling Window Placement
+** COMMENT Controlling Window Placement
 
    While [[http://www.emacswiki.org/emacs/WinnerMode][winner-mode]] is easy to keep the current window configuration
    /clean/, the [[https://github.com/tlh/workgroups.el][workgroups]] project has more features. However, due to
@@ -741,7 +742,7 @@
        ("A-J"     . avy-goto-char-timer)    ; The Mac Command key
        ("s-J"     . avy-goto-char-timer)    ; The Command key on Linux
        ("C-c k j" . avy-goto-word-1)
-       ("C-c k c" . avy-goto-char-1)
+       ("C-c k c" . avy-goto-char)
        ("C-c k l" . avy-goto-line)
        ("C-c k p" . avy-pop-mark)
        ("A-,"     . avy-pop-mark))
@@ -1180,7 +1181,9 @@
              recentf-auto-cleanup 'never
              recentf-keep '(file-remote-p file-readable-p))
        (recentf-mode 1)
-       (delete-file "~/.emacs.d/ido.last")
+       (when
+           (file-exists-p "~/.emacs.d/ido.last")
+         (delete-file "~/.emacs.d/ido.last"))
        :bind ("C-c f f" . recentf-open-files))
    #+END_SRC
 
@@ -1204,10 +1207,10 @@
      (setq vc-make-backup-files t)
    #+END_SRC
 
-   And let’s make sure our files are saved if we wander off and
-   defocus the Emacs application:
+   And if we want to make sure our files are saved if we wander off
+   and defocus the Emacs application we may use the following:
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC elisp :tangle no
      (defun save-all ()
        "Saves all dirty buffers without asking for confirmation."
        (interactive)
@@ -1267,6 +1270,9 @@
    symbols based on LaTeX keywords. Start typing a backslash.
 
    #+BEGIN_SRC elisp
+     (use-package company-math
+       :ensure t)
+
      (use-package company
        :ensure t
        :init
@@ -1473,7 +1479,7 @@
    #+END_SRC
 
 * Miscellaneous Settings
-** Line Numbers
+** COMMENT Line Numbers
 
    Turn =linum-mode= on/off with =Super-K=.  However, I
    turn this on automatically for programming modes.
@@ -1647,7 +1653,7 @@
      (add-hook 'before-save-hook 'delete-trailing-whitespace)
    #+END_SRC
 
-** Save File Position
+** COMMENT Save File Position
 
    Save the point position for every file, and restore it when that
    file is reloaded.
@@ -1969,24 +1975,24 @@
      (require 'init-python)
    #+END_SRC
 
-** R
+** COMMENT R
 
    The R programming language is great for statistical analysis. To
-   get this to work we need to install R.  With my Ubuntu OS all it
+   get this to work we need to install R.  With my fedora OS all it
    takes is the following command:
 
    #+BEGIN_SRC sh
-     sudo apt-get install r-base
+     sudo dnf install R
    #+END_SRC
 
    With windows it is a little more involved but the installation
    files can be downloaded [[https://cran.r-project.org/bin/windows/base/][here]].
 
    In addition to installing R we need to install [[http://ess.r-project.org/index.php?Section=download][ESS]] the Emacs speaks
-   statistic environment. Again, on Ubuntu all it takes is:
+   statistic environment. Again, on fedora all it takes is:
 
    #+BEGIN_SRC sh
-     sudo apt-get install ess
+     sudo dnf install emacs-common-ess
    #+END_SRC
 
    And on windows you can download it from the [[http://ess.r-project.org/index.php?Section=download][ESS download]] page. For
@@ -1994,6 +2000,10 @@
    loading the ess mode is a little different depending on the
    operating system I wrap the different load scenarios in a
    conditional statement:
+
+   #+BEGIN_SRC elisp
+     (require 'ess-site)
+   #+END_SRC
 
    I found some nifty initialization settings for the ESS package [[http://gongzhitaao.org/dotemacs/][Gong
    Zhitaao's]] webpage:
@@ -2054,9 +2064,10 @@
 * Tools
 ** Git
 
-   I like [[https://github.com/syohex/emacs-git-gutter-fringe][git-gutter-fringe]]:
+   I like [[https://github.com/syohex/emacs-git-gutter-fringe][git-gutter-fringe]] but it has annoyed me a little as of
+   late. To re-include it just tangle the following src-code block:
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC elisp :tangle no
      (use-package git-gutter-fringe
        :defer t
        :ensure t
@@ -2372,7 +2383,7 @@
    that entry in the same frame, while following a “notes” link in
    another org-mode file (or using my new reftex search addition) will
    open this file in a new frame and jump to the entry.
-** Org-Ref
+** COMMENT Org-Ref
 
    I don't know if I should have put this into my [[file:emacs-org.org][org-mode init]]
    file. For right now I keep it here since I configure RefTeX after I
@@ -2410,7 +2421,7 @@
        )
    #+END_SRC
 
-** Graphviz and PlantUML
+** COMMENT Graphviz and PlantUML
 
    Install the [[http://www.graphviz.org/][Graphviz]] and [[http://plantuml.sourceforge.net/download.html][PlantUML]] projects using the dnf package
    manager:
@@ -2439,7 +2450,7 @@
                  org-plantuml-jar-path plantuml-jar))))
    #+END_SRC
 
-* Applications
+* COMMENT Applications
 ** TODO Web Browsing
 ** EShell
 
@@ -2472,6 +2483,8 @@
 
    Before you can build this on a new system, make sure that you put
    the cursor over any of these properties, and hit: =C-c C-c=
+
+** Export settings
 
 #+DESCRIPTION: A literate programming version of my Emacs Initialization script, loaded by the .emacs file.
 #+PROPERTY:    header-args :results silent

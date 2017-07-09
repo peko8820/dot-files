@@ -33,8 +33,8 @@ Linux, or other systems with a graphical front-end.
     (global-set-key (kbd "C-x C-c") 'dont-kill-emacs)
   #+END_SRC
 
-  I would like Command-W to close a frame, but only if it only has a
-  single window in it. I found this code on [[http://www.emacswiki.org/emacs/frame-cmds.el][this site]].
+  I would like Command-W to close a frame, but only if it has a single
+  window in it. I found this code on [[http://www.emacswiki.org/emacs/frame-cmds.el][this site]].
 
   #+BEGIN_SRC elisp
   (defun delete-single-window (&optional window)

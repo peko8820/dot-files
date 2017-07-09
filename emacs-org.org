@@ -28,7 +28,7 @@ and tinkering with my configurations.
             org-todo-keywords '((sequence "TODO(t)" "DOING(g)" "WAITING(w)" "|" "DONE(d)")
                                 (sequence "|" "CANCELED(c)")))
       (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
-      (add-to-list 'auto-mode-alist '(".*/[0-9]*$" . org-mode))   ;; Journal entries
+      (add-to-list 'auto-mode-alist '(".*/[0-9]*$" . org-mode)) ;; Journal entries
       (add-hook 'org-mode-hook 'yas-minor-mode-on)
       :bind (("C-c l" . org-store-link)
              ("C-c c" . org-capture)
@@ -52,7 +52,7 @@ and tinkering with my configurations.
                     (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
                               nil))))) ;;)
 
-      (define-key org-mode-map (kbd "C-c a")   'org-agenda)
+      (define-key org-mode-map (kbd "C-c a") 'org-agenda)
       (define-key org-mode-map (kbd "M-C-n") 'org-end-of-item-list)
       (define-key org-mode-map (kbd "M-C-p") 'org-beginning-of-item-list)
       (define-key org-mode-map (kbd "M-C-u") 'outline-up-heading)
@@ -153,7 +153,7 @@ and tinkering with my configurations.
              (insert description))))
    #+END_SRC
 
-* Calendar Settings
+* COMMENT Calendar Settings
 
   There are a few calendar settings I need to customize from the
   =org-export-icalendar= group to ensure that the locally created events
@@ -457,7 +457,7 @@ and tinkering with my configurations.
   Just remember, at some point to hit =C-c C-w= to /refile/ that note
   in the appropriate place.
 
-* Presentations
+* COMMENT Presentations
 
   I alternated between the browser-based presentation tool, [[https://github.com/hakimel/reveal.js/][reveal.js]]
   and staying in Emacs with [[https://github.com/takaxp/org-tree-slide][org-tree-slide]].
