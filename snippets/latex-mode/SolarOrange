@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: SolarOrange
+# key: SolarOrange
+# --
+\definecolor{orange}{RGB}{203,75,22}

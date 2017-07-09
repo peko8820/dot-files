@@ -1,0 +1,134 @@
+# -*- mode: snippet -*-
+# name: GANTTtikz
+# key: GANTTtikz
+# --
+\documentclass[border=1pt]{standalone}
+\usepackage{
+	tikz,
+	pgfplots,
+	amsmath,
+	amssymb,
+	bm,
+	color,
+        pgfgantt,
+}
+
+\usetikzlibrary{
+	calc,
+	intersections,
+	patterns,
+	shapes,
+	arrows,
+	positioning,
+	3d,
+}
+
+\usepgfplotslibrary{units}
+
+\pgfplotsset{compat=1.14}
+
+% Use non-serif fonts
+\renewcommand*{\familydefault}{\sfdefault}
+
+\definecolor{blue}{RGB}{38,139,210}
+\definecolor{red}{RGB}{220,50,47}
+\definecolor{green}{RGB}{133,153,0}
+\definecolor{yellow}{RGB}{181,137,0}
+\definecolor{orange}{RGB}{203,75,22}
+\definecolor{magenta}{RGB}{211,54,130}
+\definecolor{violet}{RGB}{108,113,196}
+\definecolor{cyan}{RGB}{42,161,152}
+
+\definecolor{base3}{RGB}{253,246,227}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand\sfdefault{phv}
+\renewcommand\mddefault{mc}
+\renewcommand\bfdefault{bc}
+
+\setganttlinklabel{s-s}{START-TO-START}
+\setganttlinklabel{f-s}{FINISH-TO-START}
+\setganttlinklabel{f-f}{FINISH-TO-FINISH}
+
+\sffamily
+
+\newcounter{myWeekNum}
+\stepcounter{myWeekNum}
+%
+\newcommand{\myWeek}{\themyWeekNum
+    \stepcounter{myWeekNum}
+    \ifnum\themyWeekNum=53
+         \setcounter{myWeekNum}{1}
+    \else\fi
+  }
+
+\setcounter{myWeekNum}{${1:1}}
+\ganttset{%
+calendar week text={\myWeek{}}%
+}
+
+\resizebox{${2:10cm}}{${3:!}}{
+\begin{ganttchart}[
+  canvas/.append style={fill=none, draw=black!25, line width=.75pt},
+  hgrid style/.style={draw=black!35, line width=.75pt},
+  vgrid={dotted, draw=none, draw=none, draw=none, draw=none, draw=none,
+    draw=none},
+  % progress=today,
+  today={${4:27.01.2017}},
+  today rule/.style={
+    draw=black!64,
+    dash pattern=on 3.5pt off 4.5pt,
+    line width=1.5pt
+  },
+  today label font=\small\bfseries,
+  x unit=0.1cm,
+  y unit title=0.5cm,
+  y unit chart=0.5cm,
+  title/.style={draw=none, fill=none},
+  title label font=\bfseries\footnotesize,
+  title label node/.append style={below=-0.25cm},
+  include title in canvas=false,
+  bar label font=\mdseries\small\color{green},
+  bar label node/.append style={left=0.5cm},
+  bar/.append style={draw=none, fill=black},
+  bar complete/.append style={fill=red},
+  bar incomplete/.append style={fill=blue},
+  bar progress label font=\mdseries\footnotesize\color{green},
+  group incomplete/.append style={fill=blue},
+  group complete/.append style={fill=red},
+  group left shift=0,
+  group right shift=0,
+  group height=0.5,
+  group peaks tip position=0,
+  group label node/.append style={left=0.6cm},
+  group progress label font=\bfseries\small,
+  link/.style={-latex, line width=1.pt, red, rounded corners=2pt},
+  link label font=\scriptsize\bfseries,
+  link label node/.append style={below left=-2pt and 0pt},
+  time slot format=little-endian,
+  ]{${5:01.01.2017}}{${6:17.05.2017}}
+
+  \gantttitlecalendar{month=name, week}\\
+
+  $0
+
+\end{ganttchart}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

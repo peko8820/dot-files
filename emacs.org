@@ -385,7 +385,7 @@
        :bind ("C-c T f" . auto-fill-mode)
        :init
        (add-hook 'org-mode-hook 'turn-on-auto-fill)
-       (set-fill-column 100)
+       (setq-default fill-column 100)
        :diminish auto-fill-mode)
    #+END_SRC
 
@@ -2292,7 +2292,7 @@
             (add-to-list
              'TeX-command-list
              '("PNG"
-               "gswin64c -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=png16m -r600 -sOutputFile#%s.png -f %s.pdf"
+               "gswin64c -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pngalpha -r600 -dBackgroundColor=16#CCCC00 -sOutputFile#%s.png -f %s.pdf"
                TeX-run-command
                nil                          ; ask for confirmation
                t                            ; active in all modes
