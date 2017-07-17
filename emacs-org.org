@@ -451,6 +451,15 @@ and tinkering with my configurations.
              "* TODO %?\n\n  %i\n\n  From: %a" :empty-lines 1)))
   #+END_SRC
 
+  I will also check if there are any templates defined in the local settings. If there are any
+  defined I will add them to the =org-capture-templates=.
+
+  #+BEGIN_SRC elisp
+    (when
+        ms/local-org-capture-templates
+      (nconc org-capture-templates ms/local-org-capture-templates))
+  #+END_SRC
+
   After you have selected the template, you type in your note and hit
   =C-c C-c= to store it in the file listed above.
 
