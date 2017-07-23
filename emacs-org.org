@@ -723,64 +723,111 @@ and tinkering with my configurations.
 
 * Latex Settings
 
-  There are quite a few latex settings I have. I plan to implement the
-  latex export settings using the example of John Kitchin.  As of now
-  I wanted to have the SI unit package available whenever I render
-  in-line latex equations inside my orgmode files.
+  There are quite a few latex settings I have. First we will need a new class definition or a
+  few. The we will need to define our own list of default packages.
+
+** LaTeX classes
+
+  My favorit class for reports is the KOMA script report.  Since the standard article, book,
+  etc. classes are not made for the good old DIN standard!  Therefore, we will first add
+  ourselves the KOMA report class to the org-mode class list, which we can then call with:
+
+  #+BEGIN_EXAMPLE
+    #+LaTeX_CLASS: koma-report
+  #+END_EXAMPLE
+
+  To add the koma-report class we use the following code:
 
   #+BEGIN_SRC elisp
-    (require 'ox-latex)
-
-    (setq org-latex-default-packages-alist
-          '(("AUTO" "inputenc" t)
-            ("" "lmodern" nil)
-            ("T1" "fontenc" t)
-            ("" "fixltx2e" nil)
-                                            ;	("" "charter" nil) ;; a decent font
-                                            ;	("expert" "mathdesign" nil)
-            ("" "graphicx" t)
-            ("" "longtable" nil)
-            ("" "float" nil)
-            ("" "wrapfig" nil)
-            ("" "rotating" nil)
-            ("normalem" "ulem" t)
-            ("" "amsmath" t)
-            ("" "textcomp" t)
-            ("" "marvosym" t)
-            ("" "wasysym" t)
-            ("" "amssymb" t)
-            ("" "amsmath" t)
-            ("version=3" "mhchem" t)
-            ("numbers,super,sort&compress" "natbib" nil)
-            ("" "natmove" nil)
-            ("" "url" nil)
-            ("" "minted" nil)
-            ("" "underscore" nil)
-            ("linktocpage,pdfstartview=FitH,colorlinks,
-    linkcolor=blue,anchorcolor=blue,
-    citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
-             "hyperref" nil)
-            ("" "attachfile" nil)))
-
-    (add-to-list 'org-latex-packages-alist '("" "siunitx"))
+    (add-to-list 'org-latex-classes
+                 '("koma-report"
+                   "\\documentclass{scrreprt}"
+                   ("\\chapter{%s}" . "\\chapter*{%s}")
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+                 )
   #+END_SRC
 
-  Do not put in \hypersetup use your own
-  \hypersetup{pdfkeywords={%s},\n pdfsubject={%s},\n pdfcreator={%s}
 
-  #+BEGIN_SRC elisp
-    (setq org-latex-with-hyperref nil)
-  #+END_SRC
+** LaTeX Default Packages
 
-  The following is for code syntax highlighting in latex export
+   #+BEGIN_SRC elisp
+     (require 'ox-latex)
 
-  #+BEGIN_SRC elisp
-    (setq org-latex-listings 'minted)
-    (setq org-latex-minted-options
-               '(("frame" "lines")
-                 ("fontsize" "\\scriptsize")
-                 ("linenos" "")))
-  #+END_SRC
+     (setq org-latex-default-packages-alist
+           '(("utf8" "inputenc" t)
+             ("" "lmodern" t)
+             ("T1" "fontenc" t)
+             ("" "fixltx2e" t)
+             ("" "morewrites" t)
+             ("usenames, dvipsnames, svgnames, table" "xcolor" t)
+             ("prefix=sol" "xcolor-solarized" t)
+             ("" "booktabs" t)
+             ("" "tabularx" t)
+             ("" "ltablex" t)
+             ("ngerman, english" "babel" t)
+             ("" "cite" t)
+             ("bf,ruled" "caption" t)
+             ("pdftex" "graphicx" t)
+             ("" "wrapfig" nil)
+             ("" "subcaption" t)
+             ("version-1-compatibility,alsoload=binary,binary-units,per=slash" "siunitx" t)
+             ("" "textcomp" t)
+             ("" "microtype" t)
+             ("" "nicefrac" t)
+             ("" "enumitem" t)
+             ("" "datetime" t)
+             ("chapter,cache" "minted" t)
+             ("" "srchack" t)
+             ("" "pgfplots" t)
+             ("" "tikz" t)
+             ("european, siunitx" "circuitikz" t)
+             ("unicode=true,
+     hypertexname=true,
+     bookmarks=true,
+     bookmarksnumbered=true,
+     bookmarksopen=false,
+     breaklinks=true,
+     pdfborder={0 0 0},
+     pagebackref=true,
+     colorlinks=true,
+     ocgcolorlinks=true,
+     linkcolor=sol-blue,
+     citecolor=sol-green,
+     filecolor=sol-magenta,
+     urlcolor=sol-cyan" "hyperref" t)
+             ("" "amsmath" t)
+             ("" "marvosym" t)
+             ("" "wasysym" t)
+             ("" "amssymb" t)
+             ("" "amsmath" t)
+             ("capitalize, nameinlink, noabbrev" "cleveref" t)
+             ("automark, headsepline" "scrlayer-scrpage")
+             ("all" "nowidow" t)
+             ))
+   #+END_SRC
+
+   Do not put in \hypersetup use your own
+   \hypersetup{pdfkeywords={%s},\n pdfsubject={%s},\n pdfcreator={%s}
+
+   #+BEGIN_SRC elisp
+     (setq org-latex-with-hyperref nil)
+   #+END_SRC
+
+   The following is for code syntax highlighting in latex export
+
+   #+BEGIN_SRC elisp
+     (setq org-latex-listings 'minted)
+     (setq org-latex-minted-options
+           '(("frame" "lines")
+             ("chapter" "")
+             ("cache" "")
+             ("fontsize" "\\scriptsize")
+             ("linenos" "")))
+   #+END_SRC
 
 
 ** Export templates
