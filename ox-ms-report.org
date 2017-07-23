@@ -1,0 +1,316 @@
+#+TITLE:  Ox MS Report
+#+AUTHOR: Markus Sievers
+#+EMAIL:  markussievers88@gmail.com
+#+DATE:   2017 Jul 22
+#+TAGS:   Emacs
+
+
+This file sets up the orgmode export option to a latex document with my on report
+style.
+
+* Backend
+
+  At first we will require the org-mode export back end, just in case:
+
+  #+BEGIN_SRC elisp
+    (require 'ox)
+  #+END_SRC
+
+  Next we define the back-end for the export function which we see as an option when
+  we hit ~C-c C-e~ from within an org-mode buffer.  Since this is mainly base on the
+  already existing latex export back-end we can use a derived back-end:
+
+  #+BEGIN_SRC elisp
+    (org-export-define-derived-backend 'ms-report 'latex
+      :options-alist
+      '((:acknowledgements "ACKNOWLEDGEMENTS" nil nil)
+        (:abstract "ABSTRACT" nil nil parse))
+      :translate-alist '((template . ms-report-template))
+      :menu-entry
+      '(?r "Export as a report"
+           ((?L "As LaTeX buffer" ms-report-export-as-latex)
+            (?l "As LaTeX file" ms-report-export-to-latex)
+            (?p "As PDF file" ms-report-export-to-pdf)
+            (?o "As PDF file and open"
+                (lambda (a s v b)
+                  (if a (ms-report-export-to-pdf t s v b)
+                    (org-open-file (ms-report-export-to-pdf nil s v b))))))))
+  #+END_SRC
+
+* Template
+
+  The template will return the complete text string from the current org-mode buffer,
+  which then in turn is used by the specified back-end function. This is also the
+  place the my specific latex template comes into play.
+
+  #+BEGIN_SRC elisp
+    (defun ms-report-template (contents info)
+      "return complete document string for this export"
+      (concat
+       ;; Time-stamp.
+       (and (plist-get info :time-stamp-file)
+            (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
+       ;; Document class and packages.
+       (let* ((class (plist-get info :latex-class))
+              (class-options (plist-get info :latex-class-options))
+              (header (nth 1 (assoc class org-latex-classes)))
+              (document-class-string
+               (and (stringp header)
+                    (if (not class-options) header
+                      (replace-regexp-in-string
+                       "^[ \t]*\\\\documentclass\\(\\(\\[[^]]*\\]\\)?\\)"
+                       class-options header t nil 1)))))
+         (if (not document-class-string)
+             (user-error "Unknown LaTeX class `%s'" class)
+           (org-latex-guess-babel-language
+            (org-latex-guess-inputenc
+             (org-element-normalize-string
+              (org-splice-latex-header
+               document-class-string
+               org-latex-default-packages-alist ; Defined in org.el.
+               org-latex-packages-alist nil     ; Defined in org.el.
+               (concat (org-element-normalize-string (plist-get info :latex-header))
+                       (plist-get info :latex-header-extra)))))
+            info)))
+
+       ;; Now the core content
+       (let ((acknowledgements (plist-get info :acknowledgements))
+             (abstract (plist-get info :abstract))
+             (author (plist-get info :author))
+             (title (plist-get info :title)))
+         ;; org-mode escapes these in the abstract. This is hackery to
+         ;; undo it. It is probably not fail-proof
+         (setq abstract (org-export-data abstract info))
+         (setq abstract (replace-regexp-in-string "\\\\\\$" "$" abstract))
+         (setq abstract (replace-regexp-in-string "\\\\{" "{" abstract))
+         (setq abstract (replace-regexp-in-string "\\\\}" "}" abstract))
+         (setq abstract (replace-regexp-in-string "\\\\_" "_" abstract))
+         (setq abstract (replace-regexp-in-string "\\$\\\\backslash\\$" "\\\\" abstract))
+         (concat
+          "
+    \\begin{document}
+    \\thispagestyle{empty}
+    \\begin{titlepage}
+
+        \\begin{center}
+            \\vspace*{1cm}
+            \\LARGE
+            "
+          ;; note the use of org-export-data, it did not work to just put title in here.
+          (format "\\textbf{%s}" (org-export-data title info)) "
+
+            \\vspace{2.5cm}
+            \\large
+            " (format "\\textbf{%s}" (org-export-data author info)) "
+
+            \\vspace{2.5cm}
+            \\large
+            \\today
+
+
+            \\vfill
+
+        \\end{center}
+    \\end{titlepage}
+
+
+    \\thispagestyle{empty}
+
+    \\raggedbottom
+
+    % scan your signature page and name it signature.pdf
+    "
+            (when acknowledgements
+              (concat "\\section*{Acknowledgements}\n"
+                      (format "%s\n" (org-export-data acknowledgements info))))
+            "
+
+    \\newpage
+
+    \\tableofcontents
+    \\newpage
+
+    \\section*{Abstract}
+    "
+            abstract
+            "
+
+    \\newpage
+    \n\n"
+         contents
+         "\n\\end{document}"))))
+  #+END_SRC
+
+* Export as latex buffer
+
+  Now we will include the function that lets us export our org-mode data to a latex
+  buffer. Note that this is a buffer and has not yet been saved to a file.  This is
+  quite handy when you just want to see the result of the export but not actually
+  export the org-mode buffer.
+
+  #+BEGIN_SRC elisp
+    ;;;###autoload
+    (defun ms-report-export-as-latex
+        (&optional async subtreep visible-only body-only ext-plist)
+      "Export current buffer as a report letter.
+
+    If narrowing is active in the current buffer, only export its
+    narrowed part.
+
+    If a region is active, export that region.
+
+    A non-nil optional argument ASYNC means the process should happen
+    asynchronously.  The resulting buffer should be accessible
+    through the `org-export-stack' interface.
+
+    When optional argument SUBTREEP is non-nil, export the sub-tree
+    at point, extracting information from the headline properties
+    first.
+
+    When optional argument VISIBLE-ONLY is non-nil, don't export
+    contents of hidden elements.
+
+    When optional argument BODY-ONLY is non-nil, only write content.
+
+    EXT-PLIST, when provided, is a property list with external
+    parameters overriding Org default settings, but still inferior to
+    file-local settings.
+
+    Export is done in a buffer named \"*Org Report Export*\".  It
+    will be displayed if `org-export-show-temporary-export-buffer' is
+    non-nil."
+      (interactive)
+      (let (ms-report-special-contents)
+        (org-export-to-buffer 'ms-report "*Org Report Export*"
+          async subtreep visible-only body-only ext-plist
+          (lambda () (LaTeX-mode)))))
+  #+END_SRC
+
+* Export to latex file
+
+  The next function we need is a function that lets us export our org-mode data to a latex
+  file. Note that this is a buffer with the name of the original org-mode file's name
+  as name but with ~.tex~ as file ending. This will create the latex file directly for
+  us and all we have to do is compile the file or mock around some more with is. :-)
+
+  #+BEGIN_SRC elisp
+    ;;;###autoload
+    (defun ms-report-export-to-latex
+        (&optional async subtreep visible-only body-only ext-plist)
+      "Export current buffer as a report (tex).
+
+    If narrowing is active in the current buffer, only export its
+    narrowed part.
+
+    If a region is active, export that region.
+
+    A non-nil optional argument ASYNC means the process should happen
+    asynchronously.  The resulting file should be accessible through
+    the `org-export-stack' interface.
+
+    When optional argument SUBTREEP is non-nil, export the sub-tree
+    at point, extracting information from the headline properties
+    first.
+
+    When optional argument VISIBLE-ONLY is non-nil, don't export
+    contents of hidden elements.
+
+    When optional argument BODY-ONLY is non-nil, only write contents.
+
+    EXT-PLIST, when provided, is a property list with external
+    parameters overriding Org default settings, but still inferior to
+    file-local settings.
+
+    When optional argument PUB-DIR is set, use it as the publishing
+    directory.
+
+    Return output file's name."
+      (interactive)
+      (let ((outfile (org-export-output-file-name ".tex" subtreep))
+            (ms-report-special-contents))
+        (org-export-to-file 'ms-report outfile
+          async subtreep visible-only body-only ext-plist)))
+  #+END_SRC
+
+* Export as PDF file
+
+  Sometimes we want to go straight to the PDF output and not bother with the latex
+  output. This is nice when our org-mode file has all the necessary options provided
+  and the latex file is just a necessary step in between could care less
+  for. Therefore, we have ourselves a nice function that will create the latex file
+  and automatically the PDF file as well.
+
+  #+BEGIN_SRC elisp
+    ;;;###autoload
+    (defun ms-report-export-to-pdf
+        (&optional async subtreep visible-only body-only ext-plist)
+      "Export current buffer as a report (pdf).
+
+    If narrowing is active in the current buffer, only export its
+    narrowed part.
+
+    If a region is active, export that region.
+
+    A non-nil optional argument ASYNC means the process should happen
+    asynchronously.  The resulting file should be accessible through
+    the `org-export-stack' interface.
+
+    When optional argument SUBTREEP is non-nil, export the sub-tree
+    at point, extracting information from the headline properties
+    first.
+
+    When optional argument VISIBLE-ONLY is non-nil, don't export
+    contents of hidden elements.
+
+    When optional argument BODY-ONLY is non-nil, only write code
+    between \"\\begin{letter}\" and \"\\end{letter}\".
+
+    EXT-PLIST, when provided, is a property list with external
+    parameters overriding Org default settings, but still inferior to
+    file-local settings.
+
+    Return PDF file's name."
+      (interactive)
+      (let ((file (org-export-output-file-name ".tex" subtreep))
+            (ms-report-special-contents))
+        (org-export-to-file 'ms-report file
+          async subtreep visible-only body-only ext-plist
+          (lambda (file) (org-latex-compile file)))))
+  #+END_SRC
+
+* Export as PDF and open
+
+  In addition to our previous function we may even want to go a step further and open
+  the PDF output directly. To accomplish this we use the following bit of code:
+
+  #+BEGIN_SRC elisp
+    ;;;###autoload
+    (defun ms-report-export-to-pdf-and-open
+        (&optional async subtreep visible-only body-only ext-plist)
+      (interactive)
+
+      (org-open-file (ms-report-export-to-pdf async subtreep visible-only body-only ext-plist)))
+  #+END_SRC
+
+* Technical Artifacts
+
+  To use all of this goodness we provide the code content of this file with the
+  following:
+
+  #+BEGIN_SRC elisp
+    (provide 'ox-ms-report)
+  #+END_SRC
+
+  Now all that is left is to tangle to contents of this file and require it at the
+  appropriate location.  Don't forget to ~C-c C-c~ over the following to refresh the
+  local tangle settings:
+
+  #+DESCRIPTION: A literate programming version of my orgmode export to report script, loaded by the ox-ms-report.el file.
+  #+PROPERTY:    header-args :results silent
+  #+PROPERTY:    header-args+ :tangle ~/.emacs.d/elisp/ox-ms-report.el
+  #+PROPERTY:    header-args+ :eval no-export
+  #+PROPERTY:    header-args+ :comments org
+  #+PROPERTY:    header-args:sh :tangle no
+  #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+  #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+  #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
