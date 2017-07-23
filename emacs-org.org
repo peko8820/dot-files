@@ -134,6 +134,16 @@ and tinkering with my configurations.
     (setq org-log-done 'note)
   #+END_SRC
 
+** Image width
+
+   As nice as it is to display images directly in orgmode the size of the image tends to be an
+   issue. Emacs tries to display the actual size of the image which is way to big for the buffer.
+   We can change this by setting the =org-image-acutual-width= variable:
+
+   #+BEGIN_SRC elisp
+     (setq org-image-actual-width '(500))
+   #+END_SRC
+
 ** Removing links
 
    Sometimes I want to remove a link but leave its description. Since
@@ -721,8 +731,67 @@ and tinkering with my configurations.
   #+BEGIN_SRC elisp
     (require 'ox-latex)
 
+    (setq org-latex-default-packages-alist
+          '(("AUTO" "inputenc" t)
+            ("" "lmodern" nil)
+            ("T1" "fontenc" t)
+            ("" "fixltx2e" nil)
+                                            ;	("" "charter" nil) ;; a decent font
+                                            ;	("expert" "mathdesign" nil)
+            ("" "graphicx" t)
+            ("" "longtable" nil)
+            ("" "float" nil)
+            ("" "wrapfig" nil)
+            ("" "rotating" nil)
+            ("normalem" "ulem" t)
+            ("" "amsmath" t)
+            ("" "textcomp" t)
+            ("" "marvosym" t)
+            ("" "wasysym" t)
+            ("" "amssymb" t)
+            ("" "amsmath" t)
+            ("version=3" "mhchem" t)
+            ("numbers,super,sort&compress" "natbib" nil)
+            ("" "natmove" nil)
+            ("" "url" nil)
+            ("" "minted" nil)
+            ("" "underscore" nil)
+            ("linktocpage,pdfstartview=FitH,colorlinks,
+    linkcolor=blue,anchorcolor=blue,
+    citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
+             "hyperref" nil)
+            ("" "attachfile" nil)))
+
     (add-to-list 'org-latex-packages-alist '("" "siunitx"))
   #+END_SRC
+
+  Do not put in \hypersetup use your own
+  \hypersetup{pdfkeywords={%s},\n pdfsubject={%s},\n pdfcreator={%s}
+
+  #+BEGIN_SRC elisp
+    (setq org-latex-with-hyperref nil)
+  #+END_SRC
+
+  The following is for code syntax highlighting in latex export
+
+  #+BEGIN_SRC elisp
+    (setq org-latex-listings 'minted)
+    (setq org-latex-minted-options
+               '(("frame" "lines")
+                 ("fontsize" "\\scriptsize")
+                 ("linenos" "")))
+  #+END_SRC
+
+
+** Export templates
+
+   I have taken the inspiration from John Kitchin and created a few of my own
+   templates for latex exports.  The first one is a general report I like to use for
+   just about anything, especially at work.
+
+   #+BEGIN_SRC elisp
+     (require 'ox-ms-report)
+   #+END_SRC
 
 * Technical Artifacts
 

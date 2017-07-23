@@ -83,6 +83,19 @@
      (defvar ms/local-org-capture-templates nil "Empty list for locally defined org-capture list items")
    #+END_SRC
 
+** Personal information defaults
+
+   Although I will define these variable locally in my local-init.el files I will define the default
+   values here, mainly as a reference.
+
+   #+BEGIN_SRC elisp
+     (defvar ms/full_name nil "STR Full name of the user. This can be use to insert the name easily as a variable")
+     (defvar ms/home_town nil "STR Name of the place where you live")
+     (defvar ms/home_street nil "STR Your home street and house number")
+     (defvar ms/home_zip nil "STR Your home zip code")
+     (defvar ms/phone nil "STR Your phone number ")
+   #+END_SRC
+
 ** Setting the input format
 
    This is a short but nonetheless import one. To use all of the
@@ -387,7 +400,7 @@
        :bind ("C-c T f" . auto-fill-mode)
        :init
        (add-hook 'org-mode-hook 'turn-on-auto-fill)
-       (setq-default fill-column 100)
+       (setq-default fill-column 85)
        :diminish auto-fill-mode)
    #+END_SRC
 
