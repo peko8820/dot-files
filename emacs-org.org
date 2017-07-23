@@ -739,18 +739,28 @@ and tinkering with my configurations.
   To add the koma-report class we use the following code:
 
   #+BEGIN_SRC elisp
-    (add-to-list 'org-latex-classes
-                 '("koma-report"
-                   "\\documentclass{scrreprt}"
-                   ("\\chapter{%s}" . "\\chapter*{%s}")
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
-                 )
+    (with-eval-after-load 'ox-latex
+      (add-to-list 'org-latex-classes
+                   '("koma-report"
+                     "\\documentclass[
+        a4paper,                    % Paper format
+        11pt,                       % Font size
+        DIV=calc,                   % Page structure
+        onside,                     % Single print format
+        captions=tableheading,      % Captions a put into headings of tables
+        numbers=noenddot,           % No dot at the end of numbers
+        titlepage,                  % A title page is used
+        parskip=half,               % Space between paragraphs
+        toc=bib,                    % Include the bib in the table of content
+        ]{scrreprt}"
+                     ("\\chapter{%s}" . "\\chapter*{%s}")
+                     ("\\section{%s}" . "\\section*{%s}")
+                     ("\\subsection{%s}" . "\\subsection*{%s}")
+                     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                     ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+                   ))
   #+END_SRC
-
 
 ** LaTeX Default Packages
 
@@ -764,7 +774,7 @@ and tinkering with my configurations.
              ("" "fixltx2e" t)
              ("" "morewrites" t)
              ("usenames, dvipsnames, svgnames, table" "xcolor" t)
-             ("prefix=sol" "xcolor-solarized" t)
+             ("prefix=sol-" "xcolor-solarized" t)
              ("" "booktabs" t)
              ("" "tabularx" t)
              ("" "ltablex" t)
@@ -780,13 +790,13 @@ and tinkering with my configurations.
              ("" "nicefrac" t)
              ("" "enumitem" t)
              ("" "datetime" t)
-             ("chapter,cache" "minted" t)
-             ("" "srchack" t)
+             ("" "minted" t)
+             ("" "scrhack" t)
              ("" "pgfplots" t)
              ("" "tikz" t)
              ("european, siunitx" "circuitikz" t)
              ("unicode=true,
-     hypertexname=true,
+     hypertexnames=true,
      bookmarks=true,
      bookmarksnumbered=true,
      bookmarksopen=false,
@@ -823,17 +833,14 @@ and tinkering with my configurations.
      (setq org-latex-listings 'minted)
      (setq org-latex-minted-options
            '(("frame" "lines")
-             ("chapter" "")
-             ("cache" "")
              ("fontsize" "\\scriptsize")
              ("linenos" "")))
    #+END_SRC
 
-
 ** Export templates
 
    I have taken the inspiration from John Kitchin and created a few of my own
-   templates for latex exports.  The first one is a general report I like to use for
+   templates for latex exports.  The first one ([[file:ox-ms-report.org][ox-ms-report.org]]) is a general report I like to use for
    just about anything, especially at work.
 
    #+BEGIN_SRC elisp
