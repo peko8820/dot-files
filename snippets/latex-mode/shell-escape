@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: shell-escape
+# key: shell-escape
+# --
+%%% Local Variables:
+%%% TeX-command-extra-options: "-shell-escape"
+%%% TeX-master: t
+%%% End:
