@@ -77,7 +77,8 @@ style.
        (let ((acknowledgements (plist-get info :acknowledgements))
              (abstract (plist-get info :abstract))
              (author (plist-get info :author))
-             (title (plist-get info :title)))
+             (title (plist-get info :title))
+             (date (plist-get info :date)))
          ;; org-mode escapes these in the abstract. This is hackery to
          ;; undo it. It is probably not fail-proof
          (setq abstract (org-export-data abstract info))
@@ -93,23 +94,19 @@ style.
     \\begin{titlepage}
 
         \\begin{center}
-            \\vspace*{1cm}
-            \\LARGE
+            \\vspace*{2.5cm}
+            \\Huge
             "
           ;; note the use of org-export-data, it did not work to just put title in here.
-          (format "\\textbf{%s}" (org-export-data title info)) "
+          (format "\\textbf{\textsf{%s}}" (org-export-data title info)) "
 
             \\vspace{2.5cm}
-            \\large
+            \\LARGE
             " (format "\\textbf{%s}" (org-export-data author info)) "
-
-            \\vspace{2.5cm}
-            \\large
-            \\today
-
+            \\LARGE
+            " (format "\\textbf{%s}" (org-export-data date info)) "
 
             \\vfill
-
         \\end{center}
     \\end{titlepage}
 
@@ -137,8 +134,8 @@ style.
 
     \\newpage
     \n\n"
-         contents
-         "\n\\end{document}"))))
+            contents
+            "\n\\end{document}"))))
   #+END_SRC
 
 * Export as latex buffer
