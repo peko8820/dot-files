@@ -1143,7 +1143,7 @@
           ;; (shell-command "xdg-open .") ;; 2013-02-10 this sometimes froze emacs till the folder is closed. For example: with nautilus
           )))
 
-      (define-key dired-mode-map (kbd "C-O") 'dired-open-in-desktop)
+      (define-key dired-mode-map (kbd "C-M-o") 'dired-open-in-desktop)
     #+END_SRC
 
 ** IDO (Interactively DO Things)
