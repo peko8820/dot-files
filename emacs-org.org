@@ -26,7 +26,8 @@ and tinkering with my configurations.
             org-list-allow-alphabetical t
             org-export-with-sub-superscripts '{}
             org-todo-keywords '((sequence "TODO(t)" "DOING(g)" "WAITING(w)" "|" "DONE(d)")
-                                (sequence "|" "CANCELED(c)")))
+                                (sequence "|" "CANCELED(c)")
+                                (sequence "|" "TBC(b)")))
       (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
       (add-to-list 'auto-mode-alist '(".*/[0-9]*$" . org-mode)) ;; Journal entries
       (add-hook 'org-mode-hook 'yas-minor-mode-on)
@@ -47,6 +48,9 @@ and tinkering with my configurations.
                               nil)))
                    ("^\\*+ \\(CANCELED\\) "
                     (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                              nil)))
+                   ("^\\*+ \\(TBC\\) "
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "…")
                               nil)))
                    ("^\\*+ \\(DONE\\) "
                     (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
@@ -131,7 +135,7 @@ and tinkering with my configurations.
   for a closing note when a task is set to a done state.
 
   #+BEGIN_SRC elisp
-    (setq org-log-done 'note)
+    (setq org-log-done 'time)
   #+END_SRC
 
 ** Image width
