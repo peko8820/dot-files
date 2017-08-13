@@ -98,11 +98,11 @@ style.
             \\Huge
             "
           ;; note the use of org-export-data, it did not work to just put title in here.
-          (format "\\textbf{\textsf{%s}}" (org-export-data title info)) "
+          (format "\\textbf{\\textsf{%s}}" (org-export-data title info)) "\\\\
 
             \\vspace{2.5cm}
             \\LARGE
-            " (format "\\textbf{%s}" (org-export-data author info)) "
+            " (format "\\textbf{%s}" (org-export-data author info)) "\\\\
             \\LARGE
             " (format "\\textbf{%s}" (org-export-data date info)) "
 
@@ -127,13 +127,11 @@ style.
     \\tableofcontents
     \\newpage
 
-    \\section*{Abstract}
     "
-            abstract
-            "
+            (when (and abstract (not (string= "" abstract)))
+              (concat "\\section*{Abstract}\n\n \\newpage\n\n"
+                      (format "%s\n" abstract)))
 
-    \\newpage
-    \n\n"
             contents
             "\n\\end{document}"))))
   #+END_SRC
