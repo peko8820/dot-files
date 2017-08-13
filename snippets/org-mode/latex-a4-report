@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: latex-a4-report
+# key: latex-a4-report
+# --
+
+#+LaTeX_Class: koma-report
