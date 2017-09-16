@@ -1259,6 +1259,38 @@
 
    Re-read [[http://tuhdo.github.io/helm-intro.html][this essay on Helm]].
 
+   One of the nice features Helm offers is the ~helm-bibtex~. One of my standard
+   libraries is located in the home directory. This typically includes the
+   ~library.bib~ file and a ~documents~ directory which holds all the PDF documents. To
+   make helm aware of this library I need the following two commands:
+
+   #+BEGIN_SRC elisp
+     (setq bibtex-completion-bibliography '("~/Bibliography/library.bib"))
+
+     (setq bibtex-completion-library-path '("~/Bibliography/documents"))
+   #+END_SRC
+
+   A cool feature of ~helm-bibtex~ is that I can open PDF documents associated with the
+   bibtex entry and view it with an external viewer. Depending on the operating
+   system I am on I need to set different functions for opening PDF documents.
+
+   #+BEGIN_SRC elisp
+     (cond
+      ((eq system-type 'windows-nt)        ; Windows
+       (setq bibtex-completion-pdf-open-function
+             (lambda (fpath)
+               (start-process "open" "*open*" "SumatraPDF" fpath ))))
+      ((eq system-type 'gnu/linux)         ; Linux (Ubuntu in my case)
+       (setq bibtex-completion-pdf-open-function
+             (lambda (fpath)
+               (start-process "open" "*open*" "evince" fpath))))
+      ((eq system-type 'darwin)            ; Mac OS X
+       (setq bibtex-completion-pdf-open-function
+             (lambda (fpath)
+               (start-process "open" "*open*" "open" fpath)))))
+   #+END_SRC
+
+
 ** Recent File List
 
    According to [[http://www.emacswiki.org/emacs-es/RecentFiles][this article]], Emacs already has the recent file
