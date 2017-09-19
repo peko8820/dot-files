@@ -72,7 +72,18 @@ style.
                (concat (org-element-normalize-string (plist-get info :latex-header))
                        (plist-get info :latex-header-extra)))))
             info)))
+       "
 
+    "
+       (when (member
+              '("" "enumitem" t)
+              org-latex-default-packages-alist)
+         "\\setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}")
+
+       "
+
+
+    "
        ;; Now the core content
        (let ((acknowledgements (plist-get info :acknowledgements))
              (abstract (plist-get info :abstract))
@@ -133,7 +144,12 @@ style.
                       (format "%s\n" abstract)))
 
             contents
-            "\n\\end{document}"))))
+            "\n\\end{document}
+
+    \%\%\% Local Variables:
+    \%\%\% mode: latex
+    \%\%\% TeX-master: t
+    \%\%\% End:"))))
   #+END_SRC
 
 * Export as latex buffer

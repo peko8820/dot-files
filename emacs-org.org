@@ -135,7 +135,7 @@ and tinkering with my configurations.
   for a closing note when a task is set to a done state.
 
   #+BEGIN_SRC elisp
-    (setq org-log-done 'time)
+    (setq org-log-done nil)
   #+END_SRC
 
 ** Image width
@@ -181,6 +181,31 @@ and tinkering with my configurations.
      org-icalendar-timezone "Europe/Berlin"  ; Berlin timezone
      org-icalendar-store-UID "t"
      )
+  #+END_SRC
+
+* Time Stamp Settings
+
+  I don't like the ~<>~ in the time stamp when exporting to, well, pretty much any
+  other format. Thanks to a great post by [[http://endlessparentheses.com/better-time-stamps-in-org-export.html][Artur Malabarba]] I can get rid of it.
+
+  #+BEGIN_SRC elisp
+    (defun ms/filter-timestamp (trans backend _comm)
+      "Remove <> around time-stamps."
+      (when (org-export-derived-backend-p backend 'latex)
+        (replace-regexp-in-string "[<>]" "" trans)))
+
+    (add-to-list 'org-export-filter-timestamp-functions 'ms/filter-timestamp)
+  #+END_SRC
+
+  This removes the brackets around the time stamp which is pretty cool. But there is
+  more to do. Since the default format ~YYYY-MM-DD weekday~ is not very nice for prose
+  I use my own custom format.
+
+  #+BEGIN_SRC elisp
+    (setq-default org-display-custom-times t)
+
+    (setq org-time-stamp-custom-formats
+          '("<%d.%m.%Y>" . "<%d.%m.%Y %H:%M>"))
   #+END_SRC
 
 * Agenda Settings
@@ -794,7 +819,7 @@ and tinkering with my configurations.
              ("" "nicefrac" t)
              ("" "enumitem" t)
              ("" "datetime" t)
-             ("" "minted" t)
+             ;; ("" "minted" t)
              ("" "scrhack" t)
              ("" "pgfplots" t)
              ("" "tikz" t)
@@ -849,6 +874,43 @@ and tinkering with my configurations.
 
    #+BEGIN_SRC elisp
      (require 'ox-ms-report)
+   #+END_SRC
+
+** Keyword highlighting
+
+   When I export my orgmode file to a latex file and have decided to keep the TODO
+   keywords I want to keep the color as well in the final PDF. For this purpose I
+   found a useful snippet on Stackoverflow which I modified to suit my needs:
+
+   #+BEGIN_SRC elisp
+     (defun org-latex-format-headline-colored-keywords-function
+         (todo todo-type priority text tags info)
+       (concat
+        (cond
+         ((string= todo "TBC")
+          (and todo (format "({\\color{sol-magenta}\\bfseries\\sffamily %s}) " todo)))
+         ((eq todo-type 'todo)
+          (and todo (format "({\\color{sol-red}\\bfseries\\sffamily %s}) " todo)))
+         ((eq todo-type 'done)
+          (and todo (format "({\\color{sol-green}\\bfseries\\sffamily %s}) " todo))))
+        (and priority (format "\\framebox{\\#%c} " priority))
+        text
+        (and tags
+             (format "\\hfill{}\\textsc{%s}"
+                     (mapconcat (lambda (tag) (org-latex-plain-text tag info))
+                                tags ":")))))
+   #+END_SRC
+
+   This function checks if the keyword is either a ~TODO~ or a ~DONE~ keyword and applies
+   the appropriate color to it. Since I am using the xcolor solarized package I use
+   the sol- version of the colors.  In addition, I have added a differed color for my
+   TBC tag, just because I can!
+
+   To round things up I set the value of the ~org-latex-format-headline-function~ to my
+   newly created color function:
+
+   #+BEGIN_SRC elisp
+     (setq org-latex-format-headline-function 'org-latex-format-headline-colored-keywords-function)
    #+END_SRC
 
 * Technical Artifacts
