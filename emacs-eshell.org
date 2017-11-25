@@ -439,7 +439,7 @@ compiled the file.
        "My interactive function for creating my favorite hostname ip-address pairs"
        (interactive)
        (clrhash remote-shell-fav-hosts)
-       (puthash "fliewatuet" "pi@192.168.2.101" remote-shell-fav-hosts))
+       (puthash "fliewatuet" "pi@192.168.1.150#2022" remote-shell-fav-hosts))
    #+END_SRC
 
    *Note:* Both, hostname and address, need to be strings. And whenever
