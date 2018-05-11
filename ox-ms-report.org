@@ -4,8 +4,7 @@
 #+DATE:   2017 Jul 22
 #+TAGS:   Emacs
 
-
-This file sets up the orgmode export option to a latex document with my on report
+This file sets up the orgmode export option to a latex document with my own report
 style.
 
 * Backend

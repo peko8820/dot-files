@@ -35,7 +35,6 @@ and tinkering with my configurations.
              ("C-c c" . org-capture)
              ("C-M-|" . indent-rigidly))
       :config
-      ;; (unless (eq system-type 'windows-nt)
       (font-lock-add-keywords            ; A bit silly but my headers are now
        'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
                     (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
@@ -54,7 +53,7 @@ and tinkering with my configurations.
                               nil)))
                    ("^\\*+ \\(DONE\\) "
                     (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
-                              nil))))) ;;)
+                              nil)))))
 
       (define-key org-mode-map (kbd "C-c a") 'org-agenda)
       (define-key org-mode-map (kbd "M-C-n") 'org-end-of-item-list)
@@ -76,7 +75,7 @@ and tinkering with my configurations.
 
   Because I frequently insert equations within my documentation I like
   to use the all mighty power of latex. However, whenever I let
-  orgmode display the equations  for my they tend to be to small.
+  orgmode display the equations for me they tend to be to small.
   Therefore, I adjust the size a little bit:
 
   #+BEGIN_SRC elisp
@@ -135,7 +134,7 @@ and tinkering with my configurations.
   for a closing note when a task is set to a done state.
 
   #+BEGIN_SRC elisp
-    (setq org-log-done nil)
+    (setq org-log-done "time")
   #+END_SRC
 
 ** Image width
@@ -281,15 +280,73 @@ and tinkering with my configurations.
   Now we can associate some keystrokes to the org-mode:
 
   #+BEGIN_SRC elisp
-    (add-hook 'org-mode-hook
-          (lambda ()
-            (local-set-key (kbd "A-b") 'org-text-bold)
-            (local-set-key (kbd "s-b") 'org-text-bold)    ;; For Linux
-            (local-set-key (kbd "A-i") 'org-text-italics)
-            (local-set-key (kbd "s-i") 'org-text-italics)
-            (local-set-key (kbd "A-=") 'org-text-code)
-            (local-set-key (kbd "s-=") 'org-text-code)))
+    (use-package org
+      :config
+      (bind-keys :map org-mode-map
+                 ("A-b" . (surround-text-with "+"))
+                 ("s-b" . (surround-text-with "*"))
+                 ("A-i" . (surround-text-with "/"))
+                 ("s-i" . (surround-text-with "/"))
+                 ("A-=" . (surround-text-with "="))
+                 ("s-=" . (surround-text-with "="))
+                 ("A-`" . (surround-text-with "~"))
+                 ("s-`" . (surround-text-with "~"))
+
+                 ("C-S-f" . forward-sentence)
+                 ("C-S-b" . backward-sentence)))
   #+END_SRC
+
+** Better Org Return
+
+   From [[http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/][this discussion]], I got the code to replace ~M-RET~ in lists with
+   just ~RET~, so that Org acts more like other word processors.
+
+   #+BEGIN_SRC elisp
+     (defun ha/org-return (&optional ignore)
+       "Add new list item, heading or table row with RET.
+     A double return on an empty element deletes it.
+     Use a prefix arg to get regular RET. "
+       (interactive "P")
+       (if ignore
+           (org-return)
+         (cond
+          ;; Open links like usual
+          ((eq 'link (car (org-element-context)))
+           (org-return))
+          ;; lists end with two blank lines, so we need to make sure we are also not
+          ;; at the beginning of a line to avoid a loop where a new entry gets
+          ;; created with only one blank line.
+          ((and (org-in-item-p) (not (bolp)))
+           (if (org-element-property :contents-begin (org-element-context))
+               (org-insert-heading)
+             (beginning-of-line)
+             (setf (buffer-substring
+                    (line-beginning-position) (line-end-position)) "")
+             (org-return)))
+          ((org-at-heading-p)
+           (if (not (string= "" (org-element-property :title (org-element-context))))
+               (progn (org-end-of-meta-data)
+                      (org-insert-heading))
+             (beginning-of-line)
+             (setf (buffer-substring
+                    (line-beginning-position) (line-end-position)) "")))
+          ((org-at-table-p)
+           (if (-any?
+                (lambda (x) (not (string= "" x)))
+                (nth
+                 (- (org-table-current-dline) 1)
+                 (org-table-to-lisp)))
+               (org-return)
+             ;; empty row
+             (beginning-of-line)
+             (setf (buffer-substring
+                    (line-beginning-position) (line-end-position)) "")
+             (org-return)))
+          (t
+           (org-return)))))
+
+     (define-key org-mode-map (kbd "RET")  #'ha/org-return)
+   #+END_SRC
 
 * Color and Display
 
@@ -306,11 +363,11 @@ and tinkering with my configurations.
   actually affecting the text file or the behavior).
 
   #+BEGIN_SRC elisp
-     (use-package org-mode
-       :init
-       (font-lock-add-keywords 'org-mode
-        '(("^ +\\([-*]\\) "
-               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•")))))))
+    (use-package org
+      :init
+      (font-lock-add-keywords 'org-mode
+       '(("^ +\\([-*]\\) "
+              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•")))))))
   #+END_SRC
 
   Before we load =org-mode= properly, we need to set the following
@@ -757,39 +814,76 @@ and tinkering with my configurations.
 
 ** LaTeX classes
 
-  My favorit class for reports is the KOMA script report.  Since the standard article, book,
-  etc. classes are not made for the good old DIN standard!  Therefore, we will first add
-  ourselves the KOMA report class to the org-mode class list, which we can then call with:
+*** Standard reports
 
-  #+BEGIN_EXAMPLE
-    #+LaTeX_CLASS: koma-report
-  #+END_EXAMPLE
+   My favorit class for reports is the KOMA script report.  Since the standard article, book,
+   etc. classes are not made for the good old DIN standard!  Therefore, we will first add
+   ourselves the KOMA report class to the org-mode class list, which we can then call with:
 
-  To add the koma-report class we use the following code:
+   #+BEGIN_EXAMPLE
+     #+LaTeX_CLASS: koma-report
+   #+END_EXAMPLE
 
-  #+BEGIN_SRC elisp
-    (with-eval-after-load 'ox-latex
-      (add-to-list 'org-latex-classes
-                   '("koma-report"
-                     "\\documentclass[
-        a4paper,                    % Paper format
-        11pt,                       % Font size
-        DIV=calc,                   % Page structure
-        onside,                     % Single print format
-        captions=tableheading,      % Captions a put into headings of tables
-        numbers=noenddot,           % No dot at the end of numbers
-        titlepage,                  % A title page is used
-        parskip=half,               % Space between paragraphs
-        toc=bib,                    % Include the bib in the table of content
-        ]{scrreprt}"
-                     ("\\chapter{%s}" . "\\chapter*{%s}")
-                     ("\\section{%s}" . "\\section*{%s}")
-                     ("\\subsection{%s}" . "\\subsection*{%s}")
-                     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                     ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
-                   ))
-  #+END_SRC
+   To add the koma-report class we use the following code:
+
+   #+BEGIN_SRC elisp
+     (with-eval-after-load 'ox-latex
+       (add-to-list 'org-latex-classes
+                    '("koma-report"
+                      "\\documentclass[
+         a4paper,                    % Paper format
+         11pt,                       % Font size
+         DIV=calc,                   % Page structure
+         onside,                     % Single print format
+         captions=tableheading,      % Captions a put into headings of tables
+         numbers=noenddot,           % No dot at the end of numbers
+         titlepage,                  % A title page is used
+         parskip=half,               % Space between paragraphs
+         toc=bib,                    % Include the bib in the table of content
+         ]{scrreprt}"
+                      ("\\chapter{%s}" . "\\chapter*{%s}")
+                      ("\\section{%s}" . "\\section*{%s}")
+                      ("\\subsection{%s}" . "\\subsection*{%s}")
+                      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                      ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                      ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+                    ))
+   #+END_SRC
+
+*** Two columned articles
+
+    Most journals require papers to be written with a two column layout. Although
+    there is a nice template for IEEE transations Elsevier needs a little more
+    tweaking. Especially since I don't particularely like the elsevier
+    package. Therefore, I have defined by own export template and need to create the
+    corresponding latex class at this point. To call the class use the following:
+
+    #+BEGIN_EXAMPLE
+      ,#+LaTeX_CLASS: twocolumned-article
+    #+END_EXAMPLE
+
+    An the following code adds the ~twocolumned-article~ to the available LaTeX
+    classes:
+
+    #+BEGIN_SRC elisp
+      (with-eval-after-load 'ox-latex
+        (add-to-list 'org-latex-classes
+                     '("twocolumned-article"
+                       "\\documentclass[
+          a4paper,                    % Paper format
+          10pt,                       % Font size
+          onside,                     % Single print format
+          captions=tableheading,      % Captions a put into headings of tables
+          numbers=noenddot,           % No dot at the end of numbers
+          titlepage,                  % A title page is used
+          twocolumn,                  % The twocolumn layout will be used
+          parskip=false,              % Do not insert space between paragraphs
+          ]{scrartcl}"
+                       ("\\section{%s}" . "\\section*{%s}")
+                       ("\\subsection{%s}" . "\\subsection*{%s}")
+                       ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+                     ))
+    #+END_SRC
 
 ** LaTeX Default Packages
 
@@ -798,8 +892,8 @@ and tinkering with my configurations.
 
      (setq org-latex-default-packages-alist
            '(("utf8" "inputenc" t)
-             ("" "lmodern" t)
              ("T1" "fontenc" t)
+             ("" "lmodern" t)
              ("" "fixltx2e" t)
              ("" "morewrites" t)
              ("usenames, dvipsnames, svgnames, table" "xcolor" t)
@@ -874,6 +968,14 @@ and tinkering with my configurations.
 
    #+BEGIN_SRC elisp
      (require 'ox-ms-report)
+   #+END_SRC
+
+   Because each publishing house requires slightly different pagelayouts I have
+   started by creating my own template for the ESREF2017 conference. This export
+   template is defined in [[file:ox-ms-ESREF-paper.org][ox-ms-ESREF-paper.org]] and will be loaded with the following code:
+
+   #+BEGIN_SRC elisp
+     (require 'ox-ms-ESREF-paper)
    #+END_SRC
 
 ** Keyword highlighting

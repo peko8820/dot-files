@@ -152,12 +152,13 @@
    to make sure the following directories have been created.
 
    #+BEGIN_SRC elisp
-     (let* ((subdirs '("elisp" "backups" "snippets" "ac-dict"))
-            (fulldirs (mapcar (lambda (d) (ms/emacs-subdirectory d)) subdirs)))
-       (dolist (dir fulldirs)
-         (when (not (file-exists-p dir))
-           (message "Make directory: %s" dir)
-           (make-directory dir))))
+     (unless (eq system-type 'windows-nt)
+       (let* ((subdirs '("elisp" "backups" "snippets" "ac-dict"))
+	      (fulldirs (mapcar (lambda (d) (ms/emacs-subdirectory d)) subdirs)))
+	 (dolist (dir fulldirs)
+	   (when (not (file-exists-p dir))
+	     (message "Make directory: %s" dir)
+	     (make-directory dir)))))
    #+END_SRC
 
 ** Customization Section
@@ -613,6 +614,11 @@
        (highlight-regexp "(?Bad)?:?" 'hi-red-b)
        (highlight-regexp "Imp\\(rove\\)?:" 'hi-blue-b))
    #+END_SRC
+
+   TODO:
+
+   (Good):
+
 
    This works really well with other commands, including
    [[https://github.com/Bruce-Connor/fancy-narrow][fancy-narrow]], where I can visually high-light a section of a
@@ -1975,6 +1981,17 @@
         "Locally add `ha/indent-defun' to `post-command-hook'."
         (add-hook 'post-command-hook
                   'indent-defun nil 'local))
+    #+END_SRC
+
+*** Red Warnings
+
+    Various keywords (in comments) are now flagged in a Red Error font:
+
+    #+BEGIN_SRC elisp
+      (add-hook 'prog-common-hook
+                (lambda ()
+                  (font-lock-add-keywords nil
+                                          '(("\\<\\(FIX\\|FIXME\\|TODO\\|BUG\\|HACK\\):" 1 font-lock-warning-face t)))))
     #+END_SRC
 
 ** Shell Scripts

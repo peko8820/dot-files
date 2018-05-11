@@ -98,7 +98,6 @@ now I will give the Jedi implementation a try...
       (add-hook 'python-mode-hook 'color-identifiers-mode))
   #+END_SRC
 
-* Lint
 * Nose
 
   Unit test and code coverage tool for Python now comes to Emacs
@@ -119,6 +118,26 @@ now I will give the Jedi implementation a try...
   #+BEGIN_SRC sh
     pip install jedi
   #+END_SRC
+
+* Anaconda
+
+  While [[https://github.com/jorgenschaefer/elpy/wiki][ELPY]] tries to be the all-in-one Python IDE, [[https://github.com/proofit404/anaconda-mode][Anaconda]] is
+  thinner wrapper around Jedi, which seems to work a bit better for me
+  and the fact that I need to use =pyenv= (instead of =pyvenv=).
+
+  #+BEGIN_SRC elisp :tangle no
+    (use-package anaconda-mode
+      :ensure t
+      :init (add-hook 'python-mode-hook 'anaconda-mode)
+            (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+      :config (use-package company-anaconda
+                :ensure t
+                :init (add-hook 'python-mode-hook 'anaconda-mode)
+                (eval-after-load "company"
+                  '(add-to-list 'company-backends '(company-anaconda :with company-capf)))))
+  #+END_SRC
+
+  Oh, make sure we have [[https://github.com/proofit404/company-anaconda][Company-Anaconda]] configured too.
 
 * ELPY
 
@@ -172,6 +191,13 @@ now I will give the Jedi implementation a try...
   #+END_SRC
 
   Instead, I had to create a function wrapper.
+
+* Temporary Error Fixes
+
+  #+BEGIN_SRC elisp
+    (when (eq system-type 'windows-nt)
+      (setq python-shell-completion-native-enable nil))
+  #+END_SRC
 
 * Technical Artifacts
 

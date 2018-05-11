@@ -1,0 +1,360 @@
+#+TITLE:  ESREF Paper export template
+#+AUTHOR: Markus Sievers
+#+EMAIL:  markus.sievers@k-ai.at
+#+DATE:   02.01.2018
+#+TAGS:   Template
+
+This file sets up the orgmode export option to a latex document with my own ESREF
+conference paper style.
+
+* Backend
+
+  At first we will require the org-mode export back end, just in case:
+
+  #+BEGIN_SRC elisp
+    (require 'ox)
+  #+END_SRC
+
+  Next we define the back-end for the export function which we see as an option when
+  we hit ~C-c C-e~ from within an org-mode buffer.  Since this is mainly base on the
+  already existing latex export back-end we can use a derived back-end:
+
+  #+BEGIN_SRC elisp
+    (org-export-define-derived-backend 'ms-ESREF-article 'latex
+      :options-alist
+      '((:acknowledgements "ACKNOWLEDGEMENTS" nil nil)
+        (:abstract "ABSTRACT" nil nil newline)
+        (:affiliation "AFFILIATION" nil nil newline)
+        (:work-phone "WORK-PHONE" nil nil t))
+      :translate-alist '((template . ms-ESREF-article-template))
+      :menu-entry
+      '(?a "Export as an ESREF article"
+           ((?L "As LaTeX buffer" ms-ESREF-article-export-as-latex)
+            (?l "As LaTeX file" ms-ESREF-article-export-to-latex))))
+  #+END_SRC
+
+* Template
+
+  The template will return the complete text string from the current org-mode buffer,
+  which then in turn is used by the specified back-end function. This is also the
+  place the my specific latex template comes into play.
+
+  #+BEGIN_SRC elisp
+    (defun ms-ESREF-article-template (contents info)
+      "return complete document string for this export"
+      (concat
+       ;; Time-stamp.
+       (and (plist-get info :time-stamp-file)
+            (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
+       ;; Document class and packages.
+       (let* ((class (plist-get info :latex-class))
+              (class-options (plist-get info :latex-class-options))
+              (header (nth 1 (assoc class org-latex-classes)))
+              (document-class-string
+               (and (stringp header)
+                    (if (not class-options) header
+                      (replace-regexp-in-string
+                       "^[ \t]*\\\\documentclass\\(\\(\\[[^]]*\\]\\)?\\)"
+                       class-options header t nil 1)))))
+         (if (not document-class-string)
+             (user-error "Unknown LaTeX class `%s'" class)
+           (org-latex-guess-babel-language
+            (org-latex-guess-inputenc
+             (org-element-normalize-string
+              (org-splice-latex-header
+               document-class-string
+               org-latex-default-packages-alist ; Defined in org.el.
+               org-latex-packages-alist nil     ; Defined in org.el.
+               (concat (org-element-normalize-string (plist-get info :latex-header))
+                       (plist-get info :latex-header-extra)))))
+            info)))
+       "
+
+        "
+       (when (member
+              '("" "enumitem" t)
+              org-latex-default-packages-alist)
+         "\\setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}")
+
+       "
+
+        \\usepackage{geometry}
+        \\geometry{
+          a4paper,
+          total={160mm,215mm},
+          left=25mm,
+          top=40mm,
+        }
+
+        % Set the width between the two text columns
+        \\setlength{\\columnsep}{1cm}
+
+        % Adjust the size of \\Large and \\LARGE to create the title and author parts as they
+        % are required by the template
+        \\makeatletter
+        \\renewcommand\\Large{\\@setfontsize\\Large{14pt}{18}}
+        \\renewcommand\\LARGE{\\@setfontsize\\Large{16pt}{18}}
+        \\makeatother
+
+
+        % Set the size and style of the section titles
+        % each level needs to be defined separately because the default uses different sizes
+        % for each level.
+        \\setkomafont{section}{\\normalsize\\normalfont\\normalcolor\\bfseries}
+        \\setkomafont{subsection}{\\normalsize\\normalfont\\normalcolor\\itshape}
+        \\setkomafont{subsubsection}{\\normalsize\\normalfont\\normalcolor\\itshape}
+
+        % Remove the page numbers because these will be set by the editor
+        \\pagestyle{empty}
+        \\renewcommand*{\\titlepagestyle}{empty}
+
+
+        "
+       ;; Now the core content
+       (let ((acknowledgements (plist-get info :acknowledgements))
+             (abstract (plist-get info :abstract))
+             (author (plist-get info :author))
+             (affiliation (plist-get info :affiliation))
+             (title (plist-get info :title))
+             (date (plist-get info :date))
+             (email (plist-get info :email))
+             (work-phone (plist-get info :work-phone)))
+         ;; org-mode escapes these in the abstract. This is hackery to
+         ;; undo it. It is probably not fail-proof
+         (setq abstract (org-export-data abstract info))
+         (setq abstract (replace-regexp-in-string "\\\\\\$" "$" abstract))
+         (setq abstract (replace-regexp-in-string "\\\\{" "{" abstract))
+         (setq abstract (replace-regexp-in-string "\\\\}" "}" abstract))
+         (setq abstract (replace-regexp-in-string "\\\\_" "_" abstract))
+         (setq abstract (replace-regexp-in-string "\\$\\\\backslash\\$" "\\\\" abstract))
+
+         (setq author (org-export-data author info))
+         (setq author (replace-regexp-in-string "\\\\\\$" "$" author))
+         (setq author (replace-regexp-in-string "\\\\{" "{" author))
+         (setq author (replace-regexp-in-string "\\\\}" "}" author))
+         (setq author (replace-regexp-in-string "\\\\_" "_" author))
+         (setq author (replace-regexp-in-string "\\$\\\\backslash\\$" "\\\\" author))
+         (setq author (replace-regexp-in-string "{" "\\\\textsuperscript{" author))
+
+         (setq affiliation (org-export-data affiliation info))
+         (setq affiliation (replace-regexp-in-string "\\\\\\$" "$" affiliation))
+         (setq affiliation (replace-regexp-in-string "\\\\{" "{" affiliation))
+         (setq affiliation (replace-regexp-in-string "\\\\}" "}" affiliation))
+         (setq affiliation (replace-regexp-in-string "\\\\_" "_" affiliation))
+         (setq affiliation (replace-regexp-in-string "\\$\\\\backslash\\$" "\\\\" affiliation))
+         (setq affiliation (replace-regexp-in-string "{" "\\\\textsuperscript{" affiliation))
+         (concat
+          "
+        \\begin{document}
+        \\begin{titlepage}
+
+         \\begin{center}
+            % \\vspace
+            \\vspace*{5\\baselineskip}
+
+    "
+
+          ;; note the use of org-export-data, it did not work to just put title in here.
+          (format "        {\\LARGE %s}" (org-export-data title info))"\\linebreak[3]
+
+            {\\Large " (format "%s" author)"}\\linebreak[3]
+
+    "
+
+            (format "%s" affiliation)"\\\\
+            \\vspace*{2\\baselineskip}
+            \\hrulefill
+          \\end{center}
+          {\\bfseries Abstract}\\\\
+          % \\vspace{\\baselineskip}
+
+          "
+
+            (when (and abstract (not (string= "" abstract)))
+              (format "%s\n" abstract))
+
+            "
+
+          \\vspace*{2\\baselineskip}
+          \\noindent\\hrulefill
+          \\vspace{\\baselineskip}
+
+          \\small
+          \\noindent Preferred presentation:
+          \\vspace*{\\baselineskip}
+          \\begin{description}
+          \\item\\relax [\\enspace] Oral
+          \\item\\relax [\\enspace] Poster
+          \\item\\relax [\\enspace] No preference
+          \\end{description}
+          \\vspace*{2\\baselineskip}
+
+          \\noindent Preferred track (please, tick one or number 1 to 3 tracks in order of
+          preference: 1 = most suiting, 3 = least suiting)\\\\
+          % \\vspace*{\\baselineskip}
+          \\begin{description}
+          \\item\\relax [\\enspace] \\qquad A - Quality and Reliability Assessment Techniques and Methods for Devices and Systems
+          \\item\\relax [\\enspace] \\qquad B1 - Si Technologies \\& Nanoelectronics: Hot Carriers, High K, Gate Materials
+          \\item\\relax [\\enspace] \\qquad B2 - Si Technologies \\& Nanoelectronics: Low K, Cu Interconnects
+          \\item\\relax [\\enspace] \\qquad B3 - Si Technologies \\& Nanoelectronics: ESD, Latch-up
+          \\item\\relax [2] \\qquad C - Progress in Failure Analysis: Defect Detection and Analysis
+          \\item\\relax [\\enspace] \\qquad D - Reliability of Microwave and Compound Semiconductors Devices
+          \\item\\relax [\\enspace] \\qquad E1 - Power Devices Reliability: Silicon and Passive
+          \\item\\relax [\\enspace] \\qquad E2 - Power Devices Reliability: Wide Bandgap Devices
+          \\item\\relax [1] \\qquad F - Packaging and Assembly Reliability
+          \\item\\relax [\\enspace] \\qquad G - MEMS, Sensors and Organic Electronics Reliability
+          \\item\\relax [\\enspace] \\qquad H - Photonics Reliability
+          \\item\\relax [\\enspace] \\qquad I - Extreme Environments and Radiation
+          \\item\\relax [\\enspace] \\qquad K - Renewable Energies Reliability
+          \\item\\relax [\\enspace] \\qquad L - Modeling for Reliability
+          \\item\\relax [\\enspace] \\qquad SS1 (Special Session) - Reliability in Traction Applications
+          \\end{description}
+
+          \\normalsize
+          \\vspace*{\\baselineskip}
+          \\noindent{\\large\\bfseries\\textsuperscript{*} Corresponding author}\\\\
+          {\\small " (format "%s" (org-export-data email info))"}\\\\
+          {\\footnotesize Tel: "(when (and work-phone (not (string= "" work-phone)))(format "%s" work-phone))"}
+
+        \\end{titlepage}
+
+    \\twocolumn[{
+        \\begin{center}
+        "
+          (format "        {\\LARGE %s}" (org-export-data title info))"\\linebreak[3]
+
+            {\\Large " (format "%s" author)"}\\linebreak[3]
+
+    "
+
+            (format "  %s" affiliation)
+
+            "
+          \\vspace{2\\baselineskip}
+        \\end{center}
+    }]
+
+
+    "
+            contents
+            "\n\\end{document}
+
+        \%\%\% Local Variables:
+        \%\%\% mode: latex
+        \%\%\% TeX-master: t
+        \%\%\% End:"))))
+  #+END_SRC
+
+* Export as latex buffer
+
+  Now we will include the function that lets us export our org-mode data to a latex
+  buffer. Note that this is a buffer and has not yet been saved to a file.  This is
+  quite handy when you just want to see the result of the export but not actually
+  export the org-mode buffer.
+
+  #+BEGIN_SRC elisp
+    ;;;###autoload
+    (defun ms-ESREF-article-export-as-latex
+        (&optional async subtreep visible-only body-only ext-plist)
+      "Export current buffer as a report letter.
+
+    If narrowing is active in the current buffer, only export its
+    narrowed part.
+
+    If a region is active, export that region.
+
+    A non-nil optional argument ASYNC means the process should happen
+    asynchronously.  The resulting buffer should be accessible
+    through the `org-export-stack' interface.
+
+    When optional argument SUBTREEP is non-nil, export the sub-tree
+    at point, extracting information from the headline properties
+    first.
+
+    When optional argument VISIBLE-ONLY is non-nil, don't export
+    contents of hidden elements.
+
+    When optional argument BODY-ONLY is non-nil, only write content.
+
+    EXT-PLIST, when provided, is a property list with external
+    parameters overriding Org default settings, but still inferior to
+    file-local settings.
+
+    Export is done in a buffer named \"*Org Report Export*\".  It
+    will be displayed if `org-export-show-temporary-export-buffer' is
+    non-nil."
+      (interactive)
+      (let (ms-ESREF-article-special-contents)
+        (org-export-to-buffer 'ms-ESREF-article "*Org ESREF2017 Export*"
+          async subtreep visible-only body-only ext-plist
+          (lambda () (LaTeX-mode)))))
+  #+END_SRC
+
+* Export to latex file
+
+  The next function we need is a function that lets us export our org-mode data to a latex
+  file. Note that this is a buffer with the name of the original org-mode file's name
+  as name but with ~.tex~ as file ending. This will create the latex file directly for
+  us and all we have to do is compile the file or mock around some more with is. :-)
+
+  #+BEGIN_SRC elisp
+    ;;;###autoload
+    (defun ms-ESREF-article-export-to-latex
+        (&optional async subtreep visible-only body-only ext-plist)
+      "Export current buffer as a report (tex).
+
+    If narrowing is active in the current buffer, only export its
+    narrowed part.
+
+    If a region is active, export that region.
+
+    A non-nil optional argument ASYNC means the process should happen
+    asynchronously.  The resulting file should be accessible through
+    the `org-export-stack' interface.
+
+    When optional argument SUBTREEP is non-nil, export the sub-tree
+    at point, extracting information from the headline properties
+    first.
+
+    When optional argument VISIBLE-ONLY is non-nil, don't export
+    contents of hidden elements.
+
+    When optional argument BODY-ONLY is non-nil, only write contents.
+
+    EXT-PLIST, when provided, is a property list with external
+    parameters overriding Org default settings, but still inferior to
+    file-local settings.
+
+    When optional argument PUB-DIR is set, use it as the publishing
+    directory.
+
+    Return output file's name."
+      (interactive)
+      (let ((outfile (org-export-output-file-name ".tex" subtreep))
+            (ms-ESREF-article-special-contents))
+        (org-export-to-file 'ms-ESREF-article outfile
+          async subtreep visible-only body-only ext-plist)))
+  #+END_SRC
+
+* Technical Artifacts
+
+  To use all of this goodness we provide the code content of this file with the
+  following:
+
+  #+BEGIN_SRC elisp
+    (provide 'ox-ms-ESREF-paper)
+  #+END_SRC
+
+  Now all that is left is to tangle to contents of this file and require it at the
+  appropriate location.  Don't forget to ~C-c C-c~ over the following to refresh the
+  local tangle settings:
+
+  #+DESCRIPTION: A literate programming version of my orgmode export to report script, loaded by the ox-ms-ESREF-paper.el file.
+  #+PROPERTY:    header-args :results silent
+  #+PROPERTY:    header-args+ :tangle ~/.emacs.d/elisp/ox-ms-ESREF-paper.el
+  #+PROPERTY:    header-args+ :eval no-export
+  #+PROPERTY:    header-args+ :comments org
+  #+PROPERTY:    header-args:sh :tangle no
+  #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+  #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+  #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
